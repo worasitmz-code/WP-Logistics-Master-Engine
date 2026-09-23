@@ -943,7 +943,7 @@
               if (document.getElementById(`org_${i}`)) document.getElementById(`org_${i}`).value = item.org;
               if (document.getElementById(`dest_${i}`)) document.getElementById(`dest_${i}`).value = item.dest;
               
-              // แปลงเวลาตาม Date Object ป้องกันเวลาเพี้ยน
+              // แปลงเวลาให้ถูกต้องพร้อมเติม 0 หลักนาทีที่ไม่สมบูรณ์ (เช่น 10:3 -> 10:30)
               if (document.getElementById(`pTime_${i}`)) document.getElementById(`pTime_${i}`).value = formatTimeValue(item.pTime);
               if (document.getElementById(`dTime_${i}`)) document.getElementById(`dTime_${i}`).value = formatTimeValue(item.dTime);
               
@@ -1184,19 +1184,12 @@
       showToast(`คัดลอกข้อมูลเรียบร้อยแล้ว!`);
     }
 
-    // ฟังก์ชันจัดแปลงรูปแบบเวลาเวอร์ชันแก้ไขจุดสลับชั่วโมง/นาที
+    // ฟังก์ชันจัดแปลงรูปแบบเวลา ปรับปรุงระบบเติมเลข 0 ฝั่งนาทีที่ไม่สมบูรณ์
     function formatTimeValue(rawTime) {
       if (!rawTime) return '';
       let str = String(rawTime).trim();
 
-      // 1. ถ้าเป็นข้อความเวลาปกติ เช่น "08:30", "10:00" ให้ คืนค่าเดิมทันที
-      if (/^\d{1,2}:\d{2}$/.test(str)) {
-        let parts = str.split(':');
-        return `${parts[0].padStart(2, '0')}:${parts[1]}`;
-      }
-
-      // 2. ถ้าเป็น ISO String จาก Google Sheets (เช่น 1899-12-30T...) 
-      // ให้ถอดค่าชั่วโมงและนาทีจริง โดยไม่ตัดสตริงแบบข้อความ
+      // 1. ถ้าเป็น ISO String จาก Google Sheets (เช่น 1899-12-30T08:30:00.000Z)
       if (str.includes('T')) {
         let d = new Date(str);
         if (!isNaN(d.getTime())) {
@@ -1206,22 +1199,29 @@
         }
       }
 
-      // 3. จัดการกรณีตัวเลขชั่วโมงโดดๆ
       str = str.replace('.', ':');
-      if (!str.includes(':')) {
-        let num = parseInt(str);
-        if (!isNaN(num) && num >= 0 && num <= 24) {
-          return `${String(num).padStart(2, '0')}:00`;
+      
+      // 2. จัดการกรณีมีเครื่องหมาย : (แก้ไขการเติมเลข 0 นาทีที่ไม่สมบูรณ์ เช่น 10:3 -> 10:30, 08:2 -> 08:20)
+      if (str.includes(':')) {
+        let parts = str.split(':');
+        let hh = parts[0].padStart(2, '0');
+        let mm = parts[1] || '00';
+        
+        if (mm.length === 1) {
+          mm = mm + '0';
+        } else if (mm.length > 2) {
+          mm = mm.substring(0, 2);
         }
-        return str;
+        return `${hh}:${mm}`;
       }
 
-      let parts = str.split(':');
-      let hh = parts[0].padStart(2, '0');
-      let mm = parts[1] || '00';
-      if (mm.length > 2) mm = mm.substring(0, 2);
+      // 3. จัดการตัวเลขชั่วโมงโดดๆ
+      let num = parseInt(str);
+      if (!isNaN(num) && num >= 0 && num <= 24) {
+        return `${String(num).padStart(2, '0')}:00`;
+      }
 
-      return `${hh}:${mm}`;
+      return str;
     }
 
     function parseSectionFromName(nameStr) {
