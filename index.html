@@ -103,6 +103,54 @@
     .btn-delete { background-color: #dc3545 !important; color: #fff !important; }
     .btn-delete:hover { background-color: #c82333 !important; }
 
+    /* กล่องสรุปจำนวนเที่ยวรถแยกตาม SUB */
+    .sub-summary-container {
+      background-color: #222;
+      border: 1px solid #444;
+      border-radius: 4px;
+      padding: 6px 12px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .sub-summary-title {
+      font-size: 12px;
+      font-weight: bold;
+      color: #ffff00;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .sub-badge {
+      background-color: #333;
+      border: 1px solid #555;
+      color: #fff;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .sub-badge span {
+      background-color: #ffcc00;
+      color: #000;
+      padding: 1px 6px;
+      border-radius: 3px;
+      font-size: 11px;
+    }
+    .sub-badge-total {
+      background-color: #28a745;
+      border-color: #1e7e34;
+    }
+    .sub-badge-total span {
+      background-color: #fff;
+      color: #000;
+    }
+
     .table-container {
       width: 100%;
       overflow-x: auto;
@@ -284,6 +332,7 @@
         <button class="btn-opt" onclick="applySubToSelected('SVL')">SVL</button>
         <button class="btn-opt" onclick="applySubToSelected('SNS')">SNS</button>
         <button class="btn-opt" onclick="applySubToSelected('EXT')">EXT</button>
+        <button class="btn-opt" onclick="applySubToSelected('TTK')">TTK</button>
         <button class="btn-opt btn-opt-clear" onclick="applySubToSelected('')">ล้าง</button>
       </div>
 
@@ -318,6 +367,18 @@
       <button onclick="clearData()">ล้างข้อมูล</button>
       <button onclick="window.print()">🖨️ พิมพ์</button>
     </div>
+  </div>
+
+  <!-- แถบสรุปจำนวนเที่ยวรถแยกตาม SUB -->
+  <div class="sub-summary-container">
+    <div class="sub-summary-title">📊 สรุปจำนวนเที่ยวรถ (SUB):</div>
+    <div class="sub-badge">PL: <span id="count_PL">0</span> เที่ยว</div>
+    <div class="sub-badge">SVL: <span id="count_SVL">0</span> เที่ยว</div>
+    <div class="sub-badge">SNS: <span id="count_SNS">0</span> เที่ยว</div>
+    <div class="sub-badge">EXT: <span id="count_EXT">0</span> เที่ยว</div>
+    <div class="sub-badge">TTK: <span id="count_TTK">0</span> เที่ยว</div>
+    <div class="sub-badge">ไม่ระบุ SUB: <span id="count_NONE">0</span> เที่ยว</div>
+    <div class="sub-badge sub-badge-total">รวมทั้งหมด: <span id="count_TOTAL">0</span> เที่ยว</div>
   </div>
 
   <div class="table-container">
@@ -416,7 +477,7 @@
     }
 
     async function exportSubExcelFiles() {
-      const targetSubs = ['PL', 'SVL', 'SNS', 'EXT'];
+      const targetSubs = ['PL', 'SVL', 'SNS', 'EXT', 'TTK'];
       const rawDate = document.getElementById('sheetDate').value;
       
       let formattedDateStr = '01-09-26';
@@ -461,7 +522,7 @@
       }
 
       if (countExported === 0) {
-        alert('ไม่พบรายการที่มีการระบุ SUB (PL, SVL, SNS, EXT) ในตารางสำหรับส่งออกครับ!');
+        alert('ไม่พบรายการที่มีการระบุ SUB (PL, SVL, SNS, EXT, TTK) ในตารางสำหรับส่งออกครับ!');
       } else {
         showToast(`📤 ส่งออกไฟล์ Excel สำเร็จทั้งหมด ${countExported} ไฟล์!`);
       }
@@ -650,7 +711,7 @@
         return;
       }
 
-      const subOrder = { 'PL': 1, 'SVL': 2, 'SNS': 3, 'EXT': 4 };
+      const subOrder = { 'PL': 1, 'SVL': 2, 'SNS': 3, 'EXT': 4, 'TTK': 5 };
 
       rowsData.sort((a, b) => {
         const orderA = subOrder[a.sub] || 99;
@@ -789,6 +850,41 @@
       return hasLoadD1 || hasD1;
     }
 
+    // ฟังก์ชันคำนวณและสรุปจำนวนเที่ยวรถแยกตาม SUB (PL, SVL, SNS, EXT, TTK)
+    function calculateSubSummary() {
+      let counts = {
+        'PL': 0,
+        'SVL': 0,
+        'SNS': 0,
+        'EXT': 0,
+        'TTK': 0,
+        'NONE': 0,
+        'TOTAL': 0
+      };
+
+      for (let i = 1; i <= 78; i++) {
+        const dest = (document.getElementById(`dest_${i}`)?.value || '').trim();
+        if (dest !== '') {
+          counts['TOTAL']++;
+          const sub = (document.getElementById(`sub_${i}`)?.value || '').trim().toUpperCase();
+
+          if (counts.hasOwnProperty(sub)) {
+            counts[sub]++;
+          } else {
+            counts['NONE']++;
+          }
+        }
+      }
+
+      document.getElementById('count_PL').innerText = counts['PL'];
+      document.getElementById('count_SVL').innerText = counts['SVL'];
+      document.getElementById('count_SNS').innerText = counts['SNS'];
+      document.getElementById('count_EXT').innerText = counts['EXT'];
+      document.getElementById('count_TTK').innerText = counts['TTK'];
+      document.getElementById('count_NONE').innerText = counts['NONE'];
+      document.getElementById('count_TOTAL').innerText = counts['TOTAL'];
+    }
+
     function scanPendingJobs() {
       let pendingCount = 0;
 
@@ -824,6 +920,7 @@
         }
       }
 
+      calculateSubSummary();
       applyPendingFilterView();
     }
 
@@ -943,7 +1040,6 @@
               if (document.getElementById(`org_${i}`)) document.getElementById(`org_${i}`).value = item.org;
               if (document.getElementById(`dest_${i}`)) document.getElementById(`dest_${i}`).value = item.dest;
               
-              // แปลงเวลาให้ถูกต้องพร้อมเติม 0 หลักนาทีที่ไม่สมบูรณ์ (เช่น 10:3 -> 10:30)
               if (document.getElementById(`pTime_${i}`)) document.getElementById(`pTime_${i}`).value = formatTimeValue(item.pTime);
               if (document.getElementById(`dTime_${i}`)) document.getElementById(`dTime_${i}`).value = formatTimeValue(item.dTime);
               
@@ -1184,12 +1280,10 @@
       showToast(`คัดลอกข้อมูลเรียบร้อยแล้ว!`);
     }
 
-    // ฟังก์ชันจัดแปลงรูปแบบเวลา ปรับปรุงระบบเติมเลข 0 ฝั่งนาทีที่ไม่สมบูรณ์
     function formatTimeValue(rawTime) {
       if (!rawTime) return '';
       let str = String(rawTime).trim();
 
-      // 1. ถ้าเป็น ISO String จาก Google Sheets (เช่น 1899-12-30T08:30:00.000Z)
       if (str.includes('T')) {
         let d = new Date(str);
         if (!isNaN(d.getTime())) {
@@ -1201,7 +1295,6 @@
 
       str = str.replace('.', ':');
       
-      // 2. จัดการกรณีมีเครื่องหมาย : (แก้ไขการเติมเลข 0 นาทีที่ไม่สมบูรณ์ เช่น 10:3 -> 10:30, 08:2 -> 08:20)
       if (str.includes(':')) {
         let parts = str.split(':');
         let hh = parts[0].padStart(2, '0');
@@ -1215,7 +1308,6 @@
         return `${hh}:${mm}`;
       }
 
-      // 3. จัดการตัวเลขชั่วโมงโดดๆ
       let num = parseInt(str);
       if (!isNaN(num) && num >= 0 && num <= 24) {
         return `${String(num).padStart(2, '0')}:00`;
