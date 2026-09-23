@@ -357,7 +357,7 @@
       <!-- ปุ่มอัปเดต DEST และดูฐานข้อมูล -->
       <button class="btn-update-dest" onclick="updateSelectedDestName()">✏️ อัปเดตชื่อ DEST</button>
       <button class="btn-view-dict" onclick="openDictModal()">📖 ดูฐานข้อมูล DEST</button>
-      <button class="btn-save-dict-only" onclick="saveDictOnly()">💾 บันทึกเฉพาะข้อมูล DEST</button>
+      <button class="btn-save-dict-only btn-save-dict-only" onclick="saveDictOnly()">💾 บันทึกเฉพาะข้อมูล DEST</button>
 
       <!-- ปุ่มบันทึก & ดึงข้อมูลผ่าน Google Sheets -->
       <button class="btn-cloud-save" onclick="saveToGoogleSheets()">☁️ บันทึกลง Google Sheets</button>
@@ -436,7 +436,7 @@
         <h3 style="margin:0;">📖 ฐานข้อมูลการจับคู่ชื่อ DESTINATION</h3>
         <button onclick="closeDictModal()" style="border:none; background:none; font-size:18px; cursor:pointer; font-weight:bold;">❌</button>
       </div>
-      <p style="font-size:12px; color:#666; margin-bottom:10px;">รายการคำเดิมที่ระบบจำไว้ (รวมอยู่ในชีตประจำวัน Cell Z1):</p>
+      <p style="font-size:12px; color:#666; margin-bottom:10px;">รายการคำเดิมที่ระบบจำไว้ (ดึงจากชีต Dictionary):</p>
       
       <table class="dict-table">
         <thead>
@@ -635,6 +635,44 @@
       link.click();
     }
 
+    async function fetchCloudDictionary() {
+      if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes('วาง_URL')) return;
+      try {
+        const res = await fetch(`${GOOGLE_SCRIPT_URL}?action=getDict`);
+        const result = await res.json();
+        if (result.status === 'success' && result.dict) {
+          cloudDictionary = result.dict;
+        }
+      } catch (err) {
+        console.error("Error fetching dictionary:", err);
+      }
+    }
+
+    async function saveDictOnly() {
+      if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes('วาง_URL')) {
+        alert('กรุณาตั้งค่า GOOGLE_SCRIPT_URL ก่อนครับ!');
+        return;
+      }
+
+      showToast("⏳ กำลังบันทึกข้อมูลลงชีต Dictionary...");
+
+      try {
+        await fetch(GOOGLE_SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'saveDict',
+            dict: JSON.stringify(cloudDictionary)
+          })
+        });
+
+        showToast("💾 บันทึกข้อมูลลงแท็บชีต Dictionary สำเร็จ!");
+      } catch (err) {
+        alert("เกิดข้อผิดพลาด: " + err);
+      }
+    }
+
     async function loadFromGoogleSheets(silent = false) {
       if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes('วาง_URL')) {
         if (!silent) alert('กรุณาตั้งค่า GOOGLE_SCRIPT_URL ในโค้ดก่อนใช้งานครับ!');
@@ -645,14 +683,12 @@
       if (!silent) showToast(`⏳ กำลังโหลดข้อมูลประจำวันที่ ${currentDateVal}...`);
 
       try {
+        await fetchCloudDictionary();
         const res = await fetch(`${GOOGLE_SCRIPT_URL}?date=${currentDateVal}`);
         const result = await res.json();
 
         if (result.status === 'success') {
           clearData(false);
-          if (result.dict) {
-            cloudDictionary = result.dict;
-          }
           const stateToApply = {
             date: result.date,
             rows: result.rows
@@ -667,33 +703,6 @@
       }
     }
 
-    // ฟังก์ชันสำหรับบันทึกเฉพาะข้อมูล DEST แยกต่างหาก
-    async function saveDictOnly() {
-      if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes('วาง_URL')) {
-        alert('กรุณาตั้งค่า GOOGLE_SCRIPT_URL ก่อนครับ!');
-        return;
-      }
-
-      showToast("⏳ กำลังบันทึกเฉพาะข้อมูล DEST...");
-      const currentDateVal = document.getElementById('sheetDate').value;
-
-      try {
-        await fetch(GOOGLE_SCRIPT_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            date: currentDateVal,
-            dictJson: JSON.stringify(cloudDictionary)
-          })
-        });
-
-        showToast("💾 บันทึกเฉพาะข้อมูล DEST ขึ้น Cell Z1 สำเร็จ!");
-      } catch (err) {
-        alert("เกิดข้อผิดพลาด: " + err);
-      }
-    }
-
     async function saveToGoogleSheets() {
       if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes('วาง_URL')) {
         alert('กรุณาตั้งค่า GOOGLE_SCRIPT_URL ในโค้ดก่อนใช้งานครับ!');
@@ -702,7 +711,6 @@
 
       showToast("⏳ กำลังบันทึกลง Google Sheets...");
       const stateObj = JSON.parse(getCurrentState());
-      stateObj.dictJson = JSON.stringify(cloudDictionary);
 
       try {
         await fetch(GOOGLE_SCRIPT_URL, {
@@ -841,37 +849,36 @@
       });
 
       cloudDictionary = dict;
-      saveDictOnly(); // บันทึกเฉพาะข้อมูล DEST ทันที
+      saveDictOnly();
       uncheckAllBoxes();
       saveState();
       saveToBrowser(true);
       showToast(`อัปเดตชื่อเป็น "${cleanedNewName}" สำเร็จ!`);
     }
 
-    function openDictModal() {
-      loadFromGoogleSheets(true).then(() => {
-        const tbody = document.getElementById('dictTableBody');
-        tbody.innerHTML = '';
+    async function openDictModal() {
+      await fetchCloudDictionary();
+      const tbody = document.getElementById('dictTableBody');
+      tbody.innerHTML = '';
 
-        const keys = Object.keys(cloudDictionary);
-        if (keys.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#999;">ยังไม่มีข้อมูลการจับคู่ชื่อที่บันทึกไว้</td></tr>';
-        } else {
-          keys.forEach(key => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-              <td><b>${key}</b></td>
-              <td style="color:#28a745; font-weight:bold;">${cloudDictionary[key]}</td>
-              <td style="text-align:center;">
-                <button class="btn-del-dict" onclick="deleteDictItem('${key}')">ลบ</button>
-              </td>
-            `;
-            tbody.appendChild(tr);
-          });
-        }
+      const keys = Object.keys(cloudDictionary);
+      if (keys.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#999;">ยังไม่มีข้อมูลการจับคู่ชื่อที่บันทึกไว้</td></tr>';
+      } else {
+        keys.forEach(key => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><b>${key}</b></td>
+            <td style="color:#28a745; font-weight:bold;">${cloudDictionary[key]}</td>
+            <td style="text-align:center;">
+              <button class="btn-del-dict" onclick="deleteDictItem('${key}')">ลบ</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
 
-        document.getElementById('dictModal').style.display = 'flex';
-      });
+      document.getElementById('dictModal').style.display = 'flex';
     }
 
     function closeDictModal() {
@@ -1550,7 +1557,7 @@
     function deleteSelectedRows() {
       const selectedBoxes = Array.from(document.querySelectorAll('.cmb-select:checked'));
       if (selectedBoxes.length === 0) {
-        alert('กรุณาเลือกติ๊กช่อง Checkbox หน้าแถวที่ต้องการลบก่อนครับ!');
+        alert('กรุณาเลือกติ๊กช่อง Checkbox หน้าแถวรายการที่ต้องการลบก่อนครับ!');
         return;
       }
 
