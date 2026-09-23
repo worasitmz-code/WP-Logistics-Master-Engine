@@ -60,6 +60,10 @@
     .btn-view-dict { background-color: #fd7e14 !important; color: #fff !important; }
     .btn-view-dict:hover { background-color: #e06d10 !important; }
 
+    /* ปุ่มบันทึกเฉพาะ DEST */
+    .btn-save-dict-only { background-color: #c2185b !important; color: #fff !important; }
+    .btn-save-dict-only:hover { background-color: #ad1457 !important; }
+
     /* ปุ่ม Google Sheets Cloud */
     .btn-cloud-save { background-color: #28a745 !important; color: #fff !important; }
     .btn-cloud-save:hover { background-color: #218838 !important; }
@@ -353,6 +357,7 @@
       <!-- ปุ่มอัปเดต DEST และดูฐานข้อมูล -->
       <button class="btn-update-dest" onclick="updateSelectedDestName()">✏️ อัปเดตชื่อ DEST</button>
       <button class="btn-view-dict" onclick="openDictModal()">📖 ดูฐานข้อมูล DEST</button>
+      <button class="btn-save-dict-only" onclick="saveDictOnly()">💾 บันทึกเฉพาะข้อมูล DEST</button>
 
       <!-- ปุ่มบันทึก & ดึงข้อมูลผ่าน Google Sheets -->
       <button class="btn-cloud-save" onclick="saveToGoogleSheets()">☁️ บันทึกลง Google Sheets</button>
@@ -662,6 +667,33 @@
       }
     }
 
+    // ฟังก์ชันสำหรับบันทึกเฉพาะข้อมูล DEST แยกต่างหาก
+    async function saveDictOnly() {
+      if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes('วาง_URL')) {
+        alert('กรุณาตั้งค่า GOOGLE_SCRIPT_URL ก่อนครับ!');
+        return;
+      }
+
+      showToast("⏳ กำลังบันทึกเฉพาะข้อมูล DEST...");
+      const currentDateVal = document.getElementById('sheetDate').value;
+
+      try {
+        await fetch(GOOGLE_SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            date: currentDateVal,
+            dictJson: JSON.stringify(cloudDictionary)
+          })
+        });
+
+        showToast("💾 บันทึกเฉพาะข้อมูล DEST ขึ้น Cell Z1 สำเร็จ!");
+      } catch (err) {
+        alert("เกิดข้อผิดพลาด: " + err);
+      }
+    }
+
     async function saveToGoogleSheets() {
       if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes('วาง_URL')) {
         alert('กรุณาตั้งค่า GOOGLE_SCRIPT_URL ในโค้ดก่อนใช้งานครับ!');
@@ -680,7 +712,7 @@
           body: JSON.stringify(stateObj)
         });
 
-        showToast("☁️ บันทึกลง Google Sheets (และซิงค์ DEST ที่ Cell Z1) เรียบร้อยแล้ว!");
+        showToast("☁️ บันทึกลง Google Sheets เรียบร้อยแล้ว!");
       } catch (err) {
         alert("เกิดข้อผิดพลาดในการบันทึก: " + err);
       }
@@ -809,7 +841,7 @@
       });
 
       cloudDictionary = dict;
-      saveToGoogleSheets();
+      saveDictOnly(); // บันทึกเฉพาะข้อมูล DEST ทันที
       uncheckAllBoxes();
       saveState();
       saveToBrowser(true);
@@ -850,7 +882,7 @@
       let dict = { ...cloudDictionary };
       delete dict[key];
       cloudDictionary = dict;
-      saveToGoogleSheets();
+      saveDictOnly();
       openDictModal();
       showToast(`ลบคำว่า "${key}" ออกจากฐานข้อมูลแล้ว`);
     }
@@ -858,7 +890,7 @@
     function clearAllDict() {
       if (confirm('คุณต้องการล้างฐานข้อมูลพจนานุกรม DESTINATION ทั้งหมดใช่หรือไม่?')) {
         cloudDictionary = {};
-        saveToGoogleSheets();
+        saveDictOnly();
         openDictModal();
         showToast('ล้างฐานข้อมูลพจนานุกรมเรียบร้อยแล้ว');
       }
@@ -1518,7 +1550,7 @@
     function deleteSelectedRows() {
       const selectedBoxes = Array.from(document.querySelectorAll('.cmb-select:checked'));
       if (selectedBoxes.length === 0) {
-        alert('กรุณาเลือกติ๊กช่อง Checkbox หน้าแถวรายการที่ต้องการลบก่อนครับ!');
+        alert('กรุณาเลือกติ๊กช่อง Checkbox หน้าแถวที่ต้องการลบก่อนครับ!');
         return;
       }
 
