@@ -357,7 +357,7 @@
       <!-- ปุ่มอัปเดต DEST และดูฐานข้อมูล -->
       <button class="btn-update-dest" onclick="updateSelectedDestName()">✏️ อัปเดตชื่อ DEST</button>
       <button class="btn-view-dict" onclick="openDictModal()">📖 ดูฐานข้อมูล DEST</button>
-      <button class="btn-save-dict-only btn-save-dict-only" onclick="saveDictOnly()">💾 บันทึกเฉพาะข้อมูล DEST</button>
+      <button class="btn-save-dict-only" onclick="saveDictOnly()">💾 บันทึกเฉพาะข้อมูล DEST</button>
 
       <!-- ปุ่มบันทึก & ดึงข้อมูลผ่าน Google Sheets -->
       <button class="btn-cloud-save" onclick="saveToGoogleSheets()">☁️ บันทึกลง Google Sheets</button>
@@ -436,7 +436,7 @@
         <h3 style="margin:0;">📖 ฐานข้อมูลการจับคู่ชื่อ DESTINATION</h3>
         <button onclick="closeDictModal()" style="border:none; background:none; font-size:18px; cursor:pointer; font-weight:bold;">❌</button>
       </div>
-      <p style="font-size:12px; color:#666; margin-bottom:10px;">รายการคำเดิมที่ระบบจำไว้ (ดึงจากชีต Dictionary):</p>
+      <p style="font-size:12px; color:#666; margin-bottom:10px;">รายการคำเดิมที่ระบบจำไว้ (ดึงจากชีต DATA):</p>
       
       <table class="dict-table">
         <thead>
@@ -654,7 +654,7 @@
         return;
       }
 
-      showToast("⏳ กำลังบันทึกข้อมูลลงชีต Dictionary...");
+      showToast("⏳ กำลังบันทึกข้อมูลลงชีต DATA...");
 
       try {
         await fetch(GOOGLE_SCRIPT_URL, {
@@ -667,7 +667,7 @@
           })
         });
 
-        showToast("💾 บันทึกข้อมูลลงแท็บชีต Dictionary สำเร็จ!");
+        showToast("💾 บันทึกข้อมูลลงแท็บชีต DATA สำเร็จ!");
       } catch (err) {
         alert("เกิดข้อผิดพลาด: " + err);
       }
