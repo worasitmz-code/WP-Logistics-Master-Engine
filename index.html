@@ -347,7 +347,7 @@
       <!-- ปุ่มจัดกลุ่มตาม SUB -->
       <button class="btn-sort-sub" onclick="groupBySub()">🧩 จัดกลุ่มตาม SUB</button>
 
-      <!-- ปุ่มส่งออก Excel ตามแบบฟอร์ม (4 ไฟล์) -->
+      <!-- ปุ่มส่งออก Excel ตามแบบฟอร์ม (แยกตาม SUB) -->
       <button class="btn-export-excel" onclick="exportSubExcelFiles()">📤 ส่งออก Excel แยก SUB</button>
 
       <!-- ปุ่มอัปเดต DEST และดูฐานข้อมูล -->
@@ -542,59 +542,43 @@
 
       const fileNameSub = (subName === 'EXT') ? 'EXTRA' : subName;
 
+      // หยอดวันที่ Cell T1 และ ชื่อ SUB ใน Cell K4
       worksheet.getCell('T1').value = fullDateStr;
       worksheet.getCell('K4').value = fileNameSub;
 
-      let headerRowIndex = 8;
-      let colMap = {};
+      // บังคับลงตำแหน่งคอลัมน์แม่แบบเป๊ะ 100% ป้องกันคอลัมน์เลื่อน
+      const colMap = {
+        'sec': 3,     // Col C
+        'org': 4,     // Col D
+        'dest': 5,    // Col E
+        'pTime': 6,   // Col F
+        'dTime': 7,   // Col G
+        'part': 8,    // Col H
+        'qty': 9,     // Col I
+        'w4': 10,     // Col J
+        'w6': 11,     // Col K
+        'w10': 12,    // Col L
+        'company': 15 // Col O
+      };
 
-      const targetHeaderRow = worksheet.getRow(headerRowIndex);
-      targetHeaderRow.eachCell({ includeEmpty: false }, (cell, colNumber) => {
-        const val = String(cell.value || '').trim().toUpperCase();
-
-        if (val.includes('SECTION')) colMap['sec'] = colNumber;
-        else if (val.includes('ORIGIN')) colMap['org'] = colNumber;
-        else if (val.includes('DESTINATION')) colMap['dest'] = colNumber;
-        else if (val.includes('PICK UP')) colMap['pTime'] = colNumber;
-        else if (val.includes('DELIVERY')) colMap['dTime'] = colNumber;
-        else if (val.includes('PARTS')) colMap['part'] = colNumber;
-        else if (val.includes('QUANTITY')) colMap['qty'] = colNumber;
-        else if (val === '4W') colMap['w4'] = colNumber;
-        else if (val === '6W') colMap['w6'] = colNumber;
-        else if (val === '10W') colMap['w10'] = colNumber;
-        else if (val.includes('COMPANY')) colMap['company'] = colNumber;
-      });
-
-      if (!colMap['sec']) colMap['sec'] = 3;
-      if (!colMap['org']) colMap['org'] = 4;
-      if (!colMap['dest']) colMap['dest'] = 5;
-      if (!colMap['pTime']) colMap['pTime'] = 6;
-      if (!colMap['dTime']) colMap['dTime'] = 7;
-      if (!colMap['part']) colMap['part'] = 8;
-      if (!colMap['qty']) colMap['qty'] = 9;
-      if (!colMap['w4']) colMap['w4'] = 10;
-      if (!colMap['w6']) colMap['w6'] = 11;
-      if (!colMap['w10']) colMap['w10'] = 12;
-      if (!colMap['company']) colMap['company'] = 15;
-
-      let startRow = 9; 
+      let startRow = 9; // เริ่มต้นวางข้อมูลแถวที่ 9
 
       rowDataList.forEach((item, index) => {
         const rIdx = startRow + index;
 
-        if (colMap['sec']) worksheet.getCell(rIdx, colMap['sec']).value = item.sec;
-        if (colMap['org']) worksheet.getCell(rIdx, colMap['org']).value = item.org;
-        if (colMap['dest']) worksheet.getCell(rIdx, colMap['dest']).value = item.dest;
-        if (colMap['pTime']) worksheet.getCell(rIdx, colMap['pTime']).value = item.pTime;
-        if (colMap['dTime']) worksheet.getCell(rIdx, colMap['dTime']).value = item.dTime;
-        if (colMap['part']) worksheet.getCell(rIdx, colMap['part']).value = item.part;
-        if (colMap['qty']) worksheet.getCell(rIdx, colMap['qty']).value = item.qty;
+        worksheet.getCell(rIdx, colMap['sec']).value = item.sec;
+        worksheet.getCell(rIdx, colMap['org']).value = item.org;
+        worksheet.getCell(rIdx, colMap['dest']).value = item.dest;
+        worksheet.getCell(rIdx, colMap['pTime']).value = item.pTime;
+        worksheet.getCell(rIdx, colMap['dTime']).value = item.dTime;
+        worksheet.getCell(rIdx, colMap['part']).value = item.part;
+        worksheet.getCell(rIdx, colMap['qty']).value = item.qty;
 
-        if (colMap['w4']) worksheet.getCell(rIdx, colMap['w4']).value = item.w4 ? 'X' : '';
-        if (colMap['w6']) worksheet.getCell(rIdx, colMap['w6']).value = item.w6 ? 'X' : '';
-        if (colMap['w10']) worksheet.getCell(rIdx, colMap['w10']).value = item.w10 ? 'X' : '';
+        worksheet.getCell(rIdx, colMap['w4']).value = item.w4 ? 'X' : '';
+        worksheet.getCell(rIdx, colMap['w6']).value = item.w6 ? 'X' : '';
+        worksheet.getCell(rIdx, colMap['w10']).value = item.w10 ? 'X' : '';
 
-        if (colMap['company']) worksheet.getCell(rIdx, colMap['company']).value = item.sub;
+        worksheet.getCell(rIdx, colMap['company']).value = item.sub;
       });
 
       const buffer = await workbook.xlsx.writeBuffer();
@@ -850,7 +834,7 @@
       return hasLoadD1 || hasD1;
     }
 
-    // ฟังก์ชันคำนวณและสรุปจำนวนเที่ยวรถแยกตาม SUB (PL, SVL, SNS, EXT, TTK)
+    // คำนวณสรุปจำนวนเที่ยวรถแยกตาม SUB (PL, SVL, SNS, EXT, TTK)
     function calculateSubSummary() {
       let counts = {
         'PL': 0,
