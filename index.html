@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WP Logistics Master Engine</title>
-    <!-- Favicon ไอคอนรถบรรทุกบนแท็บเบราว์เซอร์ -->
+    <!-- Favicon ไอคอนรถบรรทุก -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚚</text></svg>">
     <!-- Libraries อ่านและเขียนไฟล์ Excel -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -329,7 +329,7 @@
     <div id="dest-dict-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>📖 ฐานข้อมูลการจับคู่ชื่อ DESTINATION (Cloud Sync)</h3>
+                <h3>📖 ฐานข้อมูลการจับคู่ชื่อ DESTINATION</h3>
                 <button class="btn btn-red" onclick="closeDestDictModal()">✕</button>
             </div>
             <div class="modal-body">
@@ -349,7 +349,6 @@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-red" onclick="clearDestDictionary()">🗑️ ล้างฐานข้อมูลทั้งหมด</button>
-                <button class="btn btn-green" onclick="saveDestMappingsToCloud()">☁️ บันทึกลง Cloud</button>
                 <button class="btn" onclick="closeDestDictModal()">ปิดหน้าต่าง</button>
             </div>
         </div>
@@ -357,7 +356,7 @@
 
     <script>
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxB_zMqK3Fl2VK5piZGPelz7z2NrEk9TvZvDHU5rvlafVXIt64g1Ds5PvfWmIGfqL8h/exec';
-        
+
         function createEmptyTable() {
             return Array.from({ length: 78 }, (_, i) => ({
                 no: i + 1, select: false, sub: '', w4: false, w6: false, w10: false,
@@ -376,63 +375,12 @@
             const dateInput = document.getElementById('sheet-date');
             const today = new Date().toISOString().split('T')[0];
             dateInput.value = today;
-            
-            loadDestMappingsFromCloud();
+
+            const localDict = localStorage.getItem('ttk_dest_dictionary');
+            if (localDict) ttk_dest_dictionary = JSON.parse(localDict);
+
             renderTables();
         });
-
-        // 1. ดึงฐานข้อมูลการจับคู่ชื่อจาก Cloud
-        async function loadDestMappingsFromCloud() {
-            if (!GOOGLE_SCRIPT_URL) return;
-            document.getElementById('sync-status').innerText = '🔄 กำลังซิงค์ข้อมูล...';
-            try {
-                const response = await fetch(`${GOOGLE_SCRIPT_URL}?type=get_mapping`);
-                const result = await response.json();
-                if (result.status === 'success' && result.mappings) {
-                    let cloudDict = {};
-                    result.mappings.forEach(m => {
-                        if (m.original && m.newName) {
-                            cloudDict[m.original.toUpperCase().trim()] = m.newName.toUpperCase().trim();
-                        }
-                    });
-                    ttk_dest_dictionary = cloudDict;
-                    localStorage.setItem('ttk_dest_dictionary', JSON.stringify(ttk_dest_dictionary));
-                    document.getElementById('sync-status').innerText = '● ซิงค์ Cloud สำเร็จ';
-                    if (document.getElementById('dest-dict-modal').style.display === 'flex') {
-                        renderDestDictModal();
-                    }
-                }
-            } catch (err) {
-                console.error("Error loading dest mappings:", err);
-                document.getElementById('sync-status').innerText = '⚠️ ใช้ข้อมูลในเครื่อง';
-                const localDict = localStorage.getItem('ttk_dest_dictionary');
-                if (localDict) ttk_dest_dictionary = JSON.parse(localDict);
-            }
-        }
-
-        // 2. บันทึกฐานข้อมูลการจับคู่ชื่อขึ้น Cloud
-        async function saveDestMappingsToCloud() {
-            if (!GOOGLE_SCRIPT_URL) return;
-            let mappingsArray = [];
-            for (let key in ttk_dest_dictionary) {
-                mappingsArray.push({ original: key, newName: ttk_dest_dictionary[key] });
-            }
-
-            document.getElementById('sync-status').innerText = '☁️ กำลังบันทึก...';
-            try {
-                await fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ type: 'save_mapping', mappings: mappingsArray })
-                });
-                document.getElementById('sync-status').innerText = '● บันทึก Cloud สำเร็จ';
-                alert('☁️ บันทึกฐานข้อมูลการจับคู่ชื่อลง Cloud เรียบร้อยแล้ว!');
-            } catch (err) {
-                console.error("Error saving mappings:", err);
-                alert('❌ เกิดข้อผิดพลาดในการบันทึกข้อมูล');
-            }
-        }
 
         function saveState() {
             historyStack.push(JSON.stringify(tableData));
@@ -464,7 +412,7 @@
             let pendingCount = 0;
 
             tableData.forEach((row) => {
-                const safeVal = (v) => (v === undefined || v === null) ? '' : String(v);
+                const safeVal = (v) => (v === undefined || v === null || v === 'undefined') ? '' : String(v);
 
                 const sub = safeVal(row.sub);
                 const section = safeVal(row.section);
@@ -635,7 +583,6 @@
             delete ttk_dest_dictionary[key];
             localStorage.setItem('ttk_dest_dictionary', JSON.stringify(ttk_dest_dictionary));
             renderDestDictModal();
-            saveDestMappingsToCloud();
         }
 
         function clearDestDictionary() {
@@ -643,7 +590,6 @@
                 ttk_dest_dictionary = {};
                 localStorage.removeItem('ttk_dest_dictionary');
                 renderDestDictModal();
-                saveDestMappingsToCloud();
             }
         }
 
@@ -654,7 +600,7 @@
             }
 
             const dateStr = document.getElementById('sheet-date').value;
-            document.getElementById('sync-status').innerText = '☁️ กำลังบันทึกตาราง...';
+            document.getElementById('sync-status').innerText = '☁️ กำลังบันทึก...';
 
             try {
                 await fetch(GOOGLE_SCRIPT_URL, {
@@ -677,7 +623,7 @@
         async function loadFromGoogleSheets() {
             if (!GOOGLE_SCRIPT_URL) return;
             const dateStr = document.getElementById('sheet-date').value;
-            document.getElementById('sync-status').innerText = '🔄 กำลังดึงตาราง...';
+            document.getElementById('sync-status').innerText = '🔄 กำลังดึงข้อมูล...';
 
             try {
                 const response = await fetch(`${GOOGLE_SCRIPT_URL}?date=${dateStr}`);
@@ -685,7 +631,6 @@
 
                 if (result.status === 'success' && result.rows && result.rows.length > 0) {
                     saveState();
-                    // ให้ความมั่นใจว่ามี 78 แถวเสมอ
                     let loadedRows = result.rows;
                     tableData = createEmptyTable();
                     loadedRows.forEach((r, idx) => {
