@@ -393,7 +393,7 @@
   <div id="copyToast"></div>
 
   <script>
-    // URL Google Apps Script Web App ของคุณ
+    // URL Google Apps Script Web App
     const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxB_zMqK3Fl2VK5piZGPelz7z2NrEk9TvZvDHU5rvlafVXIt64g1Ds5PvfWmIGfqL8h/exec';
 
     let undoStack = [];
@@ -401,9 +401,8 @@
     const MAX_HISTORY = 30;
     let isUndoRedoAction = false;
     let isPendingOnlyFilter = false;
-    let templateArrayBuffer = null; // เก็บไฟล์ Master Template (.xlsx)
+    let templateArrayBuffer = null;
 
-    // --- อ่านและบันทึกไฟล์ TEMPLATE ต้นแบบไว้ในระบบ ---
     function loadTemplateFile(input) {
       const file = input.files[0];
       if (!file) return;
@@ -416,7 +415,6 @@
       reader.readAsArrayBuffer(file);
     }
 
-    // --- SYSTEM ส่งออก EXCEL 4 ไฟล์ตาม SUB (PL, SVL, SNS, EXTRA) พร้อม HEADER MATCHING ---
     async function exportSubExcelFiles() {
       const targetSubs = ['PL', 'SVL', 'SNS', 'EXT'];
       const rawDate = document.getElementById('sheetDate').value;
@@ -483,11 +481,9 @@
 
       const fileNameSub = (subName === 'EXT') ? 'EXTRA' : subName;
 
-      // เซ็ตวันที่ และชื่อ SUB ในตำแหน่งเดิมของฟอร์ม
       worksheet.getCell('T1').value = fullDateStr;
       worksheet.getCell('K4').value = fileNameSub;
 
-      // --- ระบบ HEADER MATCHING อัตโนมัติ ---
       let headerRowIndex = 8;
       let colMap = {};
 
@@ -508,18 +504,17 @@
         else if (val.includes('COMPANY')) colMap['company'] = colNumber;
       });
 
-      // หากค้นหาแบบอัตโนมัติไม่เจอ ให้ใช้ Fallback Coordinate
-      if (!colMap['sec']) colMap['sec'] = 3;      // Col C
-      if (!colMap['org']) colMap['org'] = 4;      // Col D
-      if (!colMap['dest']) colMap['dest'] = 5;    // Col E
-      if (!colMap['pTime']) colMap['pTime'] = 6;  // Col F
-      if (!colMap['dTime']) colMap['dTime'] = 7;  // Col G
-      if (!colMap['part']) colMap['part'] = 8;    // Col H
-      if (!colMap['qty']) colMap['qty'] = 9;      // Col I
-      if (!colMap['w4']) colMap['w4'] = 10;       // Col J
-      if (!colMap['w6']) colMap['w6'] = 11;       // Col K
-      if (!colMap['w10']) colMap['w10'] = 12;     // Col L
-      if (!colMap['company']) colMap['company'] = 15; // Col O
+      if (!colMap['sec']) colMap['sec'] = 3;
+      if (!colMap['org']) colMap['org'] = 4;
+      if (!colMap['dest']) colMap['dest'] = 5;
+      if (!colMap['pTime']) colMap['pTime'] = 6;
+      if (!colMap['dTime']) colMap['dTime'] = 7;
+      if (!colMap['part']) colMap['part'] = 8;
+      if (!colMap['qty']) colMap['qty'] = 9;
+      if (!colMap['w4']) colMap['w4'] = 10;
+      if (!colMap['w6']) colMap['w6'] = 11;
+      if (!colMap['w10']) colMap['w10'] = 12;
+      if (!colMap['company']) colMap['company'] = 15;
 
       let startRow = 9; 
 
@@ -549,7 +544,6 @@
       link.click();
     }
 
-    // --- GOOGLE SHEETS API INTEGRATION ---
     async function saveToGoogleSheets() {
       if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes('วาง_URL')) {
         alert('กรุณาตั้งค่า GOOGLE_SCRIPT_URL ในโค้ดก่อนใช้งานครับ!');
@@ -587,7 +581,7 @@
         const result = await res.json();
 
         if (result.status === 'success') {
-          clearData(false); // ล้างตารางเดิมก่อนวาดตารางใหม่
+          clearData(false);
           const stateToApply = {
             date: result.date,
             rows: result.rows
@@ -681,8 +675,8 @@
         document.getElementById(`sec_${rowIdx}`).value = data.sec;
         document.getElementById(`org_${rowIdx}`).value = data.org;
         document.getElementById(`dest_${rowIdx}`).value = data.dest;
-        document.getElementById(`pTime_${rowIdx}`).value = data.pTime;
-        document.getElementById(`dTime_${rowIdx}`).value = data.dTime;
+        document.getElementById(`pTime_${rowIdx}`).value = formatTimeValue(data.pTime);
+        document.getElementById(`dTime_${rowIdx}`).value = formatTimeValue(data.dTime);
         document.getElementById(`part_${rowIdx}`).value = data.part;
         document.getElementById(`qty_${rowIdx}`).value = data.qty;
         document.getElementById(`rmk_${rowIdx}`).value = data.rmk;
@@ -948,8 +942,11 @@
               if (document.getElementById(`sec_${i}`)) document.getElementById(`sec_${i}`).value = item.sec;
               if (document.getElementById(`org_${i}`)) document.getElementById(`org_${i}`).value = item.org;
               if (document.getElementById(`dest_${i}`)) document.getElementById(`dest_${i}`).value = item.dest;
-              if (document.getElementById(`pTime_${i}`)) document.getElementById(`pTime_${i}`).value = item.pTime;
-              if (document.getElementById(`dTime_${i}`)) document.getElementById(`dTime_${i}`).value = item.dTime;
+              
+              // แปลงฟอร์แมตเวลาให้สั้นสวยงาม (HH:mm) ก่อนนำมาวางในช่อง
+              if (document.getElementById(`pTime_${i}`)) document.getElementById(`pTime_${i}`).value = formatTimeValue(item.pTime);
+              if (document.getElementById(`dTime_${i}`)) document.getElementById(`dTime_${i}`).value = formatTimeValue(item.dTime);
+              
               if (document.getElementById(`part_${i}`)) document.getElementById(`part_${i}`).value = item.part;
               if (document.getElementById(`qty_${i}`)) document.getElementById(`qty_${i}`).value = item.qty;
               if (document.getElementById(`rmk_${i}`)) document.getElementById(`rmk_${i}`).value = item.rmk;
@@ -1189,8 +1186,17 @@
 
     function formatTimeValue(rawTime) {
       if (!rawTime) return '';
-      let str = String(rawTime).trim().replace('.', ':');
+      let str = String(rawTime).trim();
       
+      // จัดการกับ ISO Date String เช่น 1899-12-30T03:17:56.000Z
+      if (str.includes('T')) {
+        let timePart = str.split('T')[1];
+        if (timePart) {
+          return timePart.substring(0, 5);
+        }
+      }
+
+      str = str.replace('.', ':');
       if (!str.includes(':')) {
         let num = parseInt(str);
         if (!isNaN(num)) {
@@ -1203,11 +1209,8 @@
       let hh = parts[0].padStart(2, '0');
       let mm = parts[1] || '00';
 
-      if (mm.length === 1) {
-        mm = mm + '0';
-      } else if (mm.length > 2) {
-        mm = mm.substring(0, 2);
-      }
+      if (mm.length === 1) mm = mm + '0';
+      else if (mm.length > 2) mm = mm.substring(0, 2);
 
       return `${hh}:${mm}`;
     }
@@ -1381,7 +1384,7 @@
           document.getElementById(`sec_${index}`).value = job.section;
           document.getElementById(`org_${index}`).value = job.origin;
           document.getElementById(`dest_${index}`).value = job.dest;
-          document.getElementById(`dTime_${index}`).value = job.time;
+          document.getElementById(`dTime_${index}`).value = formatTimeValue(job.time);
           document.getElementById(`part_${index}`).value = job.partName;
           document.getElementById(`qty_${index}`).value = `${job.totalAmount.toLocaleString()} ${job.uom}`;
           document.getElementById(`rmk_${index}`).value = job.remarkList.join(' | ');
@@ -1527,8 +1530,8 @@
         document.getElementById(`sec_${rowIdx}`).value = data.sec;
         document.getElementById(`org_${rowIdx}`).value = data.org || '';
         document.getElementById(`dest_${rowIdx}`).value = data.dest;
-        document.getElementById(`pTime_${rowIdx}`).value = data.pTime;
-        document.getElementById(`dTime_${rowIdx}`).value = data.dTime;
+        document.getElementById(`pTime_${rowIdx}`).value = formatTimeValue(data.pTime);
+        document.getElementById(`dTime_${rowIdx}`).value = formatTimeValue(data.dTime);
         document.getElementById(`part_${rowIdx}`).value = data.part;
         document.getElementById(`qty_${rowIdx}`).value = data.qty;
         document.getElementById(`rmk_${rowIdx}`).value = data.rmk;
