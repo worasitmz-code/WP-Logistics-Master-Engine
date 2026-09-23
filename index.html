@@ -943,7 +943,7 @@
               if (document.getElementById(`org_${i}`)) document.getElementById(`org_${i}`).value = item.org;
               if (document.getElementById(`dest_${i}`)) document.getElementById(`dest_${i}`).value = item.dest;
               
-              // แปลงฟอร์แมตเวลาให้ถูกต้องก่อนนำมาวางในช่อง
+              // แปลงเวลาตาม Date Object ป้องกันเวลาเพี้ยน
               if (document.getElementById(`pTime_${i}`)) document.getElementById(`pTime_${i}`).value = formatTimeValue(item.pTime);
               if (document.getElementById(`dTime_${i}`)) document.getElementById(`dTime_${i}`).value = formatTimeValue(item.dTime);
               
@@ -1184,27 +1184,29 @@
       showToast(`คัดลอกข้อมูลเรียบร้อยแล้ว!`);
     }
 
-    // ฟังก์ชันแปลงรูปแบบเวลา ปรับปรุงไม่ให้เวลาเพี้ยนเป็น :17 / :47
+    // ฟังก์ชันจัดแปลงรูปแบบเวลาเวอร์ชันแก้ไขจุดสลับชั่วโมง/นาที
     function formatTimeValue(rawTime) {
       if (!rawTime) return '';
       let str = String(rawTime).trim();
-      
-      // 1. ถ้าเป็นรูปแบบเวลา HH:mm หรือ H:mm อยู่แล้ว (เช่น 08:30, 10:00) ให้คืนค่าตรงๆ
+
+      // 1. ถ้าเป็นข้อความเวลาปกติ เช่น "08:30", "10:00" ให้ คืนค่าเดิมทันที
       if (/^\d{1,2}:\d{2}$/.test(str)) {
         let parts = str.split(':');
         return `${parts[0].padStart(2, '0')}:${parts[1]}`;
       }
 
-      // 2. ถ้าเป็น ISO String หรือ Date String (เช่น 1899-12-30T08:30:00.000Z)
+      // 2. ถ้าเป็น ISO String จาก Google Sheets (เช่น 1899-12-30T...) 
+      // ให้ถอดค่าชั่วโมงและนาทีจริง โดยไม่ตัดสตริงแบบข้อความ
       if (str.includes('T')) {
-        let timePart = str.split('T')[1];
-        if (timePart && timePart.includes(':')) {
-          let tParts = timePart.split(':');
-          return `${tParts[0].padStart(2, '0')}:${tParts[1]}`;
+        let d = new Date(str);
+        if (!isNaN(d.getTime())) {
+          let hh = String(d.getHours()).padStart(2, '0');
+          let mm = String(d.getMinutes()).padStart(2, '0');
+          return `${hh}:${mm}`;
         }
       }
 
-      // 3. ถ้าเป็นตัวเลขชั่วโมงปกติ
+      // 3. จัดการกรณีตัวเลขชั่วโมงโดดๆ
       str = str.replace('.', ':');
       if (!str.includes(':')) {
         let num = parseInt(str);
