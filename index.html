@@ -277,13 +277,14 @@
         <input type="file" id="templateInput" accept=".xlsx, .xls" style="display:none;" onchange="loadTemplateFile(this)">
       </label>
       
-      <!-- กลุ่มปุ่มเลือกเปลี่ยน SUB -->
+      <!-- กลุ่มปุ่มเลือกเปลี่ยน SUB (เพิ่ม TTK แล้ว) -->
       <div class="btn-group-custom">
         <span>🚚 เปลี่ยน SUB:</span>
         <button class="btn-opt" onclick="applySubToSelected('PL')">PL</button>
         <button class="btn-opt" onclick="applySubToSelected('SVL')">SVL</button>
         <button class="btn-opt" onclick="applySubToSelected('SNS')">SNS</button>
         <button class="btn-opt" onclick="applySubToSelected('EXT')">EXT</button>
+        <button class="btn-opt" onclick="applySubToSelected('TTK')">TTK</button>
         <button class="btn-opt btn-opt-clear" onclick="applySubToSelected('')">ล้าง</button>
       </div>
 
@@ -298,7 +299,7 @@
       <!-- ปุ่มจัดกลุ่มตาม SUB -->
       <button class="btn-sort-sub" onclick="groupBySub()">🧩 จัดกลุ่มตาม SUB</button>
 
-      <!-- ปุ่มส่งออก Excel ตามแบบฟอร์ม (4 ไฟล์) -->
+      <!-- ปุ่มส่งออก Excel ตามแบบฟอร์ม -->
       <button class="btn-export-excel" onclick="exportSubExcelFiles()">📤 ส่งออก Excel แยก SUB</button>
 
       <!-- ปุ่มอัปเดต DEST และดูฐานข้อมูล -->
@@ -403,6 +404,42 @@
     let isPendingOnlyFilter = false;
     let templateArrayBuffer = null; // เก็บไฟล์ Master Template (.xlsx)
 
+    // --- ระบบ IndexedDB สำหรับจำไฟล์ Template เปล่าในเบราว์เซอร์ ---
+    function initIndexedDB() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open('WPLogisticsDB', 1);
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => resolve(request.result);
+        request.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains('templates')) {
+            db.createObjectStore('templates');
+          }
+        };
+      });
+    }
+
+    async function saveTemplateToDB(arrayBuffer) {
+      try {
+        const db = await initIndexedDB();
+        const tx = db.transaction('templates', 'readwrite');
+        tx.objectStore('templates').put(arrayBuffer, 'master_template');
+      } catch (err) {}
+    }
+
+    async function loadTemplateFromDB() {
+      try {
+        const db = await initIndexedDB();
+        const tx = db.transaction('templates', 'readonly');
+        const req = tx.objectStore('templates').get('master_template');
+        req.onsuccess = () => {
+          if (req.result) {
+            templateArrayBuffer = req.result;
+          }
+        };
+      } catch (err) {}
+    }
+
     // --- อ่านและบันทึกไฟล์ TEMPLATE ต้นแบบไว้ในระบบ ---
     function loadTemplateFile(input) {
       const file = input.files[0];
@@ -411,14 +448,15 @@
       const reader = new FileReader();
       reader.onload = function(e) {
         templateArrayBuffer = e.target.result;
-        showToast("📑 โหลดไฟล์ Template ต้นแบบเรียบร้อยพร้อมใช้งาน!");
+        saveTemplateToDB(templateArrayBuffer);
+        showToast("📑 โหลดและจดจำไฟล์ Template ต้นแบบเรียบร้อยพร้อมใช้งาน!");
       };
       reader.readAsArrayBuffer(file);
     }
 
-    // --- SYSTEM ส่งออก EXCEL 4 ไฟล์ตาม SUB (PL, SVL, SNS, EXTRA) พร้อม HEADER MATCHING ---
+    // --- SYSTEM ส่งออก EXCEL ตาม SUB พร้อม HEADER MATCHING ---
     async function exportSubExcelFiles() {
-      const targetSubs = ['PL', 'SVL', 'SNS', 'EXT'];
+      const targetSubs = ['PL', 'SVL', 'SNS', 'EXT', 'TTK'];
       const rawDate = document.getElementById('sheetDate').value;
       
       let formattedDateStr = '01-09-26';
@@ -463,7 +501,7 @@
       }
 
       if (countExported === 0) {
-        alert('ไม่พบรายการที่มีการระบุ SUB (PL, SVL, SNS, EXT) ในตารางสำหรับส่งออกครับ!');
+        alert('ไม่พบรายการที่มีการระบุ SUB ในตารางสำหรับส่งออกครับ!');
       } else {
         showToast(`📤 ส่งออกไฟล์ Excel สำเร็จทั้งหมด ${countExported} ไฟล์!`);
       }
@@ -483,11 +521,9 @@
 
       const fileNameSub = (subName === 'EXT') ? 'EXTRA' : subName;
 
-      // เซ็ตวันที่ และชื่อ SUB ในตำแหน่งเดิมของฟอร์ม
       worksheet.getCell('T1').value = fullDateStr;
       worksheet.getCell('K4').value = fileNameSub;
 
-      // --- ระบบ HEADER MATCHING อัตโนมัติ ---
       let headerRowIndex = 8;
       let colMap = {};
 
@@ -508,7 +544,6 @@
         else if (val.includes('COMPANY')) colMap['company'] = colNumber;
       });
 
-      // หากค้นหาแบบอัตโนมัติไม่เจอ ให้ใช้ Fallback Coordinate
       if (!colMap['sec']) colMap['sec'] = 3;      // Col C
       if (!colMap['org']) colMap['org'] = 4;      // Col D
       if (!colMap['dest']) colMap['dest'] = 5;    // Col E
@@ -587,7 +622,7 @@
         const result = await res.json();
 
         if (result.status === 'success') {
-          clearData(false); // ล้างตารางเดิมก่อนวาดตารางใหม่
+          clearData(false);
           const stateToApply = {
             date: result.date,
             rows: result.rows
@@ -656,7 +691,7 @@
         return;
       }
 
-      const subOrder = { 'PL': 1, 'SVL': 2, 'SNS': 3, 'EXT': 4 };
+      const subOrder = { 'PL': 1, 'SVL': 2, 'SNS': 3, 'EXT': 4, 'TTK': 5 };
 
       rowsData.sort((a, b) => {
         const orderA = subOrder[a.sub] || 99;
@@ -1034,6 +1069,7 @@
       document.getElementById('truckTable').addEventListener('change', saveState);
       
       init2DDragSelect();
+      initIndexedDB().then(() => loadTemplateFromDB());
       loadFromBrowser(true);
       saveState();
     }
@@ -1307,7 +1343,7 @@
                 else if (rawWhs.includes('SNS')) whsVal = 'SNS 2';
 
                 const nameVal = nameCol !== -1 && row[nameCol] ? String(row[nameCol]).trim() : '';
-                const origRemark = row[remarkCol] ? String(row[remarkCol]).trim() : '';
+                const origRemark = remarkCol !== -1 && row[remarkCol] ? String(row[remarkCol]).trim() : '';
 
                 const qVal = parseFloat(row[qtyCol]) || 0;
                 const pVal = parseFloat(row[pkgCol]) || 0;
