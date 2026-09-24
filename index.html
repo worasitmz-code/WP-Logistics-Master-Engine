@@ -220,7 +220,7 @@
       <thead>
         <tr class="title-row">
           <td colspan="14" class="divider-left">Truck control sheet (Subcontractor) / ใบควบคุมการขนส่ง (รถร่วม) — WP Engine</td>
-          <td colspan="14">วันที่: <input type="date" id="sheetDate" value="2026-09-22" style="font-weight:bold; padding:2px;" onchange="onDateChanged()"></td>
+          <td colspan="14">วันที่: <input type="date" id="sheetDate" value="2026-09-24" style="font-weight:bold; padding:2px;" onchange="onDateChanged()"></td>
         </tr>
         <tr class="header-row">
           <th class="col-cb">เลือก</th><th class="col-no">NO.</th><th class="col-sub">SUB</th><th class="col-chk">4W</th><th class="col-chk">6W</th><th class="col-chk">10W</th><th class="col-sec">SECTION</th><th class="col-org">ORIGIN</th><th class="col-dest">DESTINATION</th><th class="col-time">PICK UP</th><th class="col-time">DELIVERY</th><th class="col-part">PARTS NAME</th><th class="col-qty">QUANTITY</th><th class="col-remark divider-left">REMARK</th>
@@ -260,7 +260,7 @@
   <div id="copyToast"></div>
 
   <script>
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxB_zMqK3Fl2VK5piZGPelz7z2NrEk9TvZvDHU5rvlafVXIt64g1Ds5PvfWmIGfqL8h/exec';
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwR7VMpC0fuuLljmYv0zDTbxrBd9kUqM3JhcMkuqvOQq3L7cndkF51zrjjsKy.../exec';
 
     let undoStack = [];
     let redoStack = [];
@@ -322,7 +322,7 @@
       } catch (err) {}
     }
 
-    // ฟังก์ชันส่งข้อมูลพจนานุกรมทะลุ CORS เพื่อซิงค์ทุกเครื่อง
+    // ฟังก์ชันส่งข้อมูลพจนานุกรมผ่าน URL Parameter เพื่อทะลุ CORS 100%
     async function saveDictOnly() {
       if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes('วาง_URL')) {
         alert('กรุณาตั้งค่า GOOGLE_SCRIPT_URL ก่อนครับ!');
@@ -332,17 +332,18 @@
       showToast("⏳ กำลังบันทึกชื่อลูกค้าลงชีต DATA...");
 
       try {
-        const formData = new URLSearchParams();
-        formData.append('action', 'saveDict');
-        formData.append('dict', JSON.stringify(cloudDictionary));
+        const dictString = encodeURIComponent(JSON.stringify(cloudDictionary));
+        const targetUrl = `${GOOGLE_SCRIPT_URL}?action=saveDict&dict=${dictString}`;
 
-        await fetch(GOOGLE_SCRIPT_URL, {
-          method: 'POST',
-          body: formData
+        await fetch(targetUrl, {
+          method: 'GET',
+          mode: 'no-cors'
         });
 
         showToast("💾 บันทึกชื่อลูกค้าลงชีต DATA สำเร็จทุกเครื่อง!");
-        fetchCloudDictionary();
+        setTimeout(() => {
+          fetchCloudDictionary();
+        }, 1000);
       } catch (err) {
         alert("เกิดข้อผิดพลาดในการบันทึก: " + err);
       }
