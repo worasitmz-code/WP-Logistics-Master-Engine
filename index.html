@@ -277,7 +277,7 @@
         <input type="file" id="templateInput" accept=".xlsx, .xls" style="display:none;" onchange="loadTemplateFile(this)">
       </label>
       
-      <!-- กลุ่มปุ่มเลือกเปลี่ยน SUB -->
+      <!-- กลุ่มปุ่มเลือกเปลี่ยน SUB (รวม TTK) -->
       <div class="btn-group-custom">
         <span>🚚 เปลี่ยน SUB:</span>
         <button class="btn-opt" onclick="applySubToSelected('PL')">PL</button>
@@ -1223,14 +1223,12 @@
       showToast(`คัดลอกข้อมูลเรียบร้อยแล้ว!`);
     }
 
-    // --- ฟังก์ชันแปลงเวลาที่ปรับปรุงใหม่เพื่อแก้ปัญหา 1899-12-30 (รองรับทั้ง String และตัวเลข Excel Fractional Day) ---
+    // --- ฟังก์ชันแปลงเวลา รองรับทั้ง String และตัวเลข Excel Fractional Day (ป้อมกัน 1899) ---
     function formatTimeValue(rawTime) {
       if (rawTime === undefined || rawTime === null || rawTime === '') return '';
 
-      // ถ้าเป็นตัวเลข (Excel เก็บเวลาเป็นเศษส่วนของวัน เช่น 0.5 = 12:00)
       if (typeof rawTime === 'number') {
         if (rawTime >= 1 || rawTime < 0) {
-          // ถ้าเป็น Serial วันที่ (เช่น 1899-12-30 หรือวันที่อื่นๆ) แต่ไม่มีเศษส่วนเวลา ให้เคลียร์เป็นค่าว่าง
           let frac = rawTime - Math.floor(rawTime);
           if (frac === 0) return '';
           rawTime = frac;
@@ -1333,7 +1331,12 @@
             const headers = jsonRows[headerIdx];
             const etdCol = headers.indexOf('ETD');
             const destCol = headers.indexOf('Delivery to');
+            
+            // ค้นหาตำแหน่งคอลัมน์เวลาทุกรูปแบบที่เป็นไปได้ในไฟล์ลูกค้า
             const timeCol = headers.indexOf('Time');
+            const pickupCol = headers.indexOf('Pickup Time');
+            const deliveryCol = headers.indexOf('Delivery Time');
+
             const qtyCol = headers.indexOf('Q\'ty');
             const pkgCol = headers.indexOf('Pkg.');
             const uomCol = headers.indexOf('UOM');
@@ -1349,12 +1352,21 @@
                 }
 
                 let destName = String(row[destCol]).trim();
-                
                 if (dict[destName]) {
                   destName = dict[destName];
                 }
 
-                const rawTime = timeCol !== -1 ? row[timeCol] : '';
+                // ดึงค่าเวลาแยกแยะระหว่าง PICK UP และ DELIVERY ให้ครบถ้วน
+                let rawPickup = '';
+                if (pickupCol !== -1) rawPickup = row[pickupCol];
+                
+                let rawDelivery = '';
+                if (deliveryCol !== -1) {
+                  rawDelivery = row[deliveryCol];
+                } else if (timeCol !== -1) {
+                  rawDelivery = row[timeCol]; // ถ้ามีคอลัมน์ Time เดี่ยวๆ ให้ลงช่อง Delivery ตามค่ามาตรฐานเดิม
+                }
+
                 let uomVal = uomCol !== -1 && row[uomCol] ? String(row[uomCol]).trim() : '';
                 
                 let rawWhs = whsCol !== -1 && row[whsCol] ? String(row[whsCol]).trim().toUpperCase() : 'TTK';
@@ -1385,13 +1397,15 @@
                 else if (destName.includes('CHEMI')) partNameVal = 'CHEMI';
                 else if (destName.includes('STM')) partNameVal = 'POWDER';
 
-                const formattedTime = formatTimeValue(rawTime);
+                const formattedPickup = formatTimeValue(rawPickup);
+                const formattedDelivery = formatTimeValue(rawDelivery);
 
                 rawJobs.push({
                   section: sectionVal,
                   origin: whsVal,
                   dest: destName,
-                  time: formattedTime,
+                  pTime: formattedPickup,
+                  dTime: formattedDelivery,
                   partName: partNameVal,
                   amount: finalAmount,
                   uom: uomVal,
@@ -1404,13 +1418,14 @@
 
         const groupedJobsMap = {};
         rawJobs.forEach(job => {
-          const matchKey = `${job.section}|${job.dest}|${job.time}|${job.origin}|${job.uom}`;
+          const matchKey = `${job.section}|${job.dest}|${job.dTime}|${job.origin}|${job.uom}`;
           if (!groupedJobsMap[matchKey]) {
             groupedJobsMap[matchKey] = {
               section: job.section,
               origin: job.origin,
               dest: job.dest,
-              time: job.time,
+              pTime: job.pTime,
+              dTime: job.dTime,
               partName: job.partName,
               totalAmount: job.amount,
               uom: job.uom,
@@ -1437,7 +1452,8 @@
           document.getElementById(`sec_${index}`).value = job.section;
           document.getElementById(`org_${index}`).value = job.origin;
           document.getElementById(`dest_${index}`).value = job.dest;
-          document.getElementById(`dTime_${index}`).value = job.time;
+          document.getElementById(`pTime_${index}`).value = job.pTime; // บันทึกค่าเวลา PICK UP ลงช่องที่ถูกต้อง
+          document.getElementById(`dTime_${index}`).value = job.dTime; // บันทึกค่าเวลา DELIVERY ลงช่องที่ถูกต้อง
           document.getElementById(`part_${index}`).value = job.partName;
           document.getElementById(`qty_${index}`).value = `${job.totalAmount.toLocaleString()} ${job.uom}`;
           document.getElementById(`rmk_${index}`).value = job.remarkList.join(' | ');
