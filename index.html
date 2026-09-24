@@ -136,13 +136,11 @@
         <input type="file" id="fileInput" accept=".xlsx, .xls" style="display:none;" onchange="importCustomerFile(this)">
       </label>
 
-      <!-- โหลดฟอร์มต้นแบบและจำไว้ใน IndexedDB อัตโนมัติ -->
       <label class="btn-file btn-template">
         📑 โหลดฟอร์มต้นแบบ (.xlsx)
         <input type="file" id="templateInput" accept=".xlsx, .xls" style="display:none;" onchange="loadTemplateFile(this)">
       </label>
       
-      <!-- เพิ่มปุ่มเปลี่ยน SUB ครบถ้วน รวมถึง TTK -->
       <div class="btn-group-custom">
         <span>🚚 เปลี่ยน SUB:</span>
         <button class="btn-opt" onclick="applySubToSelected('PL')">PL</button>
@@ -199,6 +197,7 @@
         <button onclick="closeDictModal()" style="border:none; background:none; font-size:18px; cursor:pointer; font-weight:bold;">❌</button>
       </div>
       <p style="font-size:12px; color:#666; margin-bottom:10px;">รายการคำเดิมที่ระบบจำไว้:</p>
+      
       <table class="dict-table">
         <thead>
           <tr>
@@ -209,6 +208,7 @@
         </thead>
         <tbody id="dictTableBody"></tbody>
       </table>
+
       <div style="display:flex; justify-content:space-between;">
         <button onclick="clearAllDict()" style="background-color:#dc3545; color:#fff; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:12px;">🗑️ ล้างฐานข้อมูลทั้งหมด</button>
         <button onclick="closeDictModal()" style="background-color:#6c757d; color:#fff; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:12px;">ปิดหน้าต่าง</button>
@@ -228,7 +228,6 @@
     let isPendingOnlyFilter = false;
     let templateArrayBuffer = null;
 
-    // --- ระบบจดจำไฟล์ Template เปล่าในเบราว์เซอร์ (IndexedDB) อัตโนมัติ ---
     function initIndexedDB() {
       return new Promise((resolve, reject) => {
         const request = indexedDB.open('WPLogisticsDB', 1);
@@ -236,9 +235,7 @@
         request.onsuccess = () => resolve(request.result);
         request.onupgradeneeded = (e) => {
           const db = e.target.result;
-          if (!db.objectStoreNames.contains('templates')) {
-            db.createObjectStore('templates');
-          }
+          if (!db.objectStoreNames.contains('templates')) db.createObjectStore('templates');
         };
       });
     }
@@ -256,11 +253,7 @@
         const db = await initIndexedDB();
         const tx = db.transaction('templates', 'readonly');
         const req = tx.objectStore('templates').get('master_template');
-        req.onsuccess = () => {
-          if (req.result) {
-            templateArrayBuffer = req.result;
-          }
-        };
+        req.onsuccess = () => { if (req.result) templateArrayBuffer = req.result; };
       } catch (err) {}
     }
 
@@ -271,12 +264,11 @@
       reader.onload = function(e) {
         templateArrayBuffer = e.target.result;
         saveTemplateToDB(templateArrayBuffer);
-        showToast("📑 โหลดและจดจำไฟล์ Template ต้นแบบเรียบร้อย!");
+        showToast("📑 โหลด Template สำเร็จ!");
       };
       reader.readAsArrayBuffer(file);
     }
 
-    // --- ระบบ Google Sheets ---
     async function saveToGoogleSheets() {
       if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes('วาง_URL')) {
         alert('กรุณาตั้งค่า GOOGLE_SCRIPT_URL ก่อนครับ!');
@@ -306,15 +298,12 @@
         if (result.status === 'success') {
           clearData(false);
           applyState(JSON.stringify({ date: result.date, rows: result.rows }));
-          if (!silent) showToast(`🔄 ดึงข้อมูลวันที่ ${currentDateVal} สำเร็จ!`);
+          if (!silent) showToast(`🔄 ดึงข้อมูลสำเร็จ!`);
         }
       } catch (err) {}
     }
 
-    function onDateChanged() {
-      saveState();
-      loadFromGoogleSheets(true);
-    }
+    function onDateChanged() { saveState(); loadFromGoogleSheets(true); }
 
     function applySubToSelected(subValue) {
       const selectedBoxes = Array.from(document.querySelectorAll('.cmb-select:checked'));
@@ -327,7 +316,7 @@
       uncheckAllBoxes();
       saveState();
       saveToBrowser(true);
-      showToast(subValue !== '' ? `เปลี่ยน SUB เป็น ${subValue} เรียบร้อย!` : `ล้าง SUB เรียบร้อย!`);
+      showToast('เปลี่ยน SUB เรียบร้อยแล้ว!');
     }
 
     function applyOriginToSelected(orgValue) {
@@ -341,10 +330,9 @@
       uncheckAllBoxes();
       saveState();
       saveToBrowser(true);
-      showToast(`เปลี่ยน ORIGIN เป็น ${orgValue} เรียบร้อย!`);
+      showToast('เปลี่ยน ORIGIN เรียบร้อยแล้ว!');
     }
 
-    // --- ระบบจัดกลุ่มตาม SUB และ ส่งออก Excel ---
     function groupBySub() {
       let rowsData = [];
       for (let i = 1; i <= 78; i++) {
@@ -459,7 +447,6 @@
       link.click();
     }
 
-    // --- ระบบจัดการ DEST Dictionary ---
     function getDestDictionary() {
       const raw = localStorage.getItem('ttk_dest_dictionary');
       return raw ? JSON.parse(raw) : {};
@@ -467,6 +454,7 @@
     function saveDestDictionary(dict) {
       localStorage.setItem('ttk_dest_dictionary', JSON.stringify(dict));
     }
+
     function updateSelectedDestName() {
       const selectedBoxes = Array.from(document.querySelectorAll('.cmb-select:checked'));
       if (selectedBoxes.length === 0) { alert('กรุณาเลือกแถวก่อนครับ!'); return; }
@@ -525,7 +513,6 @@
       }
     }
 
-    // --- ระบบนำเข้าไฟล์ลูกค้า (Excel Import) ---
     function importCustomerFile(input) {
       const file = input.files[0];
       if (!file) return;
@@ -653,7 +640,6 @@
       return null;
     }
 
-    // --- ฟังก์ชันพื้นฐานจัดการตาราง ---
     function uncheckAllBoxes() { document.querySelectorAll('.cmb-select').forEach(chk => chk.checked = false); }
     function clearRowData(i) {
       document.getElementById(`sub_${i}`).value = '';
