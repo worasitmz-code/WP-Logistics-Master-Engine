@@ -809,6 +809,7 @@
       showToast('🧩 จัดกลุ่มตารางตาม SUB เรียบร้อยแล้ว!');
     }
 
+    // ฟังก์ชันอัปเดตชื่อ DESTITION ที่ปรับปรุงใหม่ให้เปลี่ยนชื่อบนตารางทันที
     async function updateSelectedDestName() {
       const selectedBoxes = Array.from(document.querySelectorAll('.cmb-select:checked'));
       if (selectedBoxes.length === 0) {
@@ -827,25 +828,26 @@
       const cleanedNewName = newDestName.trim();
       let dict = { ...cloudDictionary };
 
-      selectedBoxes.forEach(box => {
-        const rowIdx = box.getAttribute('data-row');
-        const destInput = document.getElementById(`dest_${rowIdx}`);
-        if (destInput) {
-          const oldVal = destInput.value.trim();
-          if (oldVal !== '') {
-            dict[oldVal] = cleanedNewName;
-          }
+      // 1. เปลี่ยนชื่อทุกแถวในตารางหน้าจอทันทีที่มีชื่อตรงกับคำเดิม (รวมถึงแถวที่เลือก)
+      for (let i = 1; i <= 78; i++) {
+        const destInput = document.getElementById(`dest_${i}`);
+        if (destInput && destInput.value.trim() === currentDestVal.trim()) {
           destInput.value = cleanedNewName;
         }
-      });
+      }
 
-      // รอให้ส่งข้อมูลพจนานุกรมขึ้น Cloud เรียบร้อยก่อน
+      // 2. เพิ่มการจับคู่ คำเดิม -> คำใหม่ เข้า Dictionary
+      if (currentDestVal.trim() !== '') {
+        dict[currentDestVal.trim()] = cleanedNewName;
+      }
+
+      // 3. ซิงค์พจนานุกรมขึ้น Cloud
       await syncCloudDictionary(dict);
-      
+
       uncheckAllBoxes();
       saveState();
       saveToBrowser(true);
-      showToast(`อัปเดตชื่อเป็น "${cleanedNewName}" และซิงค์ขึ้น Cloud สำเร็จ!`);
+      showToast(`อัปเดตชื่อเป็น "${cleanedNewName}" ในตารางและซิงค์ขึ้น Cloud สำเร็จ!`);
     }
 
     function openDictModal() {
