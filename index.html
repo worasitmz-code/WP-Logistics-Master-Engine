@@ -431,7 +431,7 @@
         <h3 style="margin:0;">📖 ฐานข้อมูลการจับคู่ชื่อ DESTINATION</h3>
         <button onclick="closeDictModal()" style="border:none; background:none; font-size:18px; cursor:pointer; font-weight:bold;">❌</button>
       </div>
-      <p style="font-size:12px; color:#666; margin-bottom:10px;">รายการคำเดิมที่ระบบจำไว้ (รวมอยู่ในชีตประจำวัน Cell Z1):</p>
+      <p style="font-size:12px; color:#666; margin-bottom:10px;">รายการคำเดิมที่ระบบจำไว้ และจะถูกเปลี่ยนเป็นคำใหม่ให้อัตโนมัติเมื่อดึงไฟล์ Excel เข้ามา (แชร์ข้อมูลถึงกันทุกเครื่อง):</p>
       
       <table class="dict-table">
         <thead>
@@ -454,6 +454,7 @@
   <div id="copyToast"></div>
 
   <script>
+    // URL Google Apps Script Web App
     const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxB_zMqK3Fl2VK5piZGPelz7z2NrEk9TvZvDHU5rvlafVXIt64g1Ds5PvfWmIGfqL8h/exec';
 
     let undoStack = [];
@@ -462,8 +463,9 @@
     let isUndoRedoAction = false;
     let isPendingOnlyFilter = false;
     let templateArrayBuffer = null;
-    let cloudDictionary = {};
+    let cloudDictionary = {}; // ฐานข้อมูล DEST กลางบน Cloud
 
+    // ระบบ IndexedDB สำหรับจัดเก็บไฟล์ Template ต้นแบบถาวร
     function initIndexedDB() {
       return new Promise((resolve, reject) => {
         const request = indexedDB.open('WPLogisticsDB', 1);
@@ -497,6 +499,7 @@
         req.onsuccess = () => {
           if (req.result) {
             templateArrayBuffer = req.result;
+            console.log("Loaded template from IndexedDB successfully.");
           }
         };
       } catch (err) {
@@ -515,6 +518,36 @@
         showToast("📑 โหลดและบันทึกไฟล์ Template ต้นแบบเรียบร้อยพร้อมใช้งาน!");
       };
       reader.readAsArrayBuffer(file);
+    }
+
+    // ดึงฐานข้อมูลพจนานุกรม DEST จาก Cloud (Google Sheets)
+    async function fetchCloudDictionary() {
+      if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes('วาง_URL')) return;
+      try {
+        const res = await fetch(`${GOOGLE_SCRIPT_URL}?action=getDict`);
+        const result = await res.json();
+        if (result.status === 'success' && result.dict) {
+          cloudDictionary = result.dict;
+        }
+      } catch (err) {
+        console.error("Error fetching dictionary:", err);
+      }
+    }
+
+    // บันทึกฐานข้อมูลพจนานุกรม DEST ลง Cloud (Google Sheets)
+    async function syncCloudDictionary(newDict) {
+      cloudDictionary = newDict;
+      if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes('วาง_URL')) return;
+      try {
+        await fetch(GOOGLE_SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'saveDict', dict: cloudDictionary })
+        });
+      } catch (err) {
+        console.error("Error saving dictionary to cloud:", err);
+      }
     }
 
     async function exportSubExcelFiles() {
@@ -630,6 +663,30 @@
       link.click();
     }
 
+    async function saveToGoogleSheets() {
+      if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes('วาง_URL')) {
+        alert('กรุณาตั้งค่า GOOGLE_SCRIPT_URL ในโค้ดก่อนใช้งานครับ!');
+        return;
+      }
+
+      showToast("⏳ กำลังบันทึกลง Google Sheets...");
+      const stateObj = JSON.parse(getCurrentState());
+      stateObj.action = 'saveData';
+
+      try {
+        await fetch(GOOGLE_SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(stateObj)
+        });
+
+        showToast("☁️ บันทึกลง Google Sheets เรียบร้อยแล้ว!");
+      } catch (err) {
+        alert("เกิดข้อผิดพลาดในการบันทึก: " + err);
+      }
+    }
+
     async function loadFromGoogleSheets(silent = false) {
       if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes('วาง_URL')) {
         if (!silent) alert('กรุณาตั้งค่า GOOGLE_SCRIPT_URL ในโค้ดก่อนใช้งานครับ!');
@@ -640,49 +697,23 @@
       if (!silent) showToast(`⏳ กำลังโหลดข้อมูลประจำวันที่ ${currentDateVal}...`);
 
       try {
+        await fetchCloudDictionary();
         const res = await fetch(`${GOOGLE_SCRIPT_URL}?date=${currentDateVal}`);
         const result = await res.json();
 
         if (result.status === 'success') {
           clearData(false);
-          if (result.dict) {
-            cloudDictionary = result.dict;
-          }
           const stateToApply = {
             date: result.date,
             rows: result.rows
           };
           applyState(JSON.stringify(stateToApply));
-          if (!silent) showToast(`🔄 ดึงข้อมูลวันที่ ${currentDateVal} สำเร็จ!`);
+          showToast(`🔄 ดึงข้อมูลวันที่ ${currentDateVal} จาก Google Sheets สำเร็จ!`);
         } else {
-          if (!silent) alert(`ไม่พบข้อมูลที่บันทึกไว้ของวันที่ ${currentDateVal} ครับ`);
+          if (!silent) alert(`ไม่พบข้อมูลที่บันทึกไว้ของวันที่ ${currentDateVal} ใน Google Sheets ครับ`);
         }
       } catch (err) {
         if (!silent) alert("เกิดข้อผิดพลาดในการดึงข้อมูล: " + err);
-      }
-    }
-
-    async function saveToGoogleSheets() {
-      if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes('วาง_URL')) {
-        alert('กรุณาตั้งค่า GOOGLE_SCRIPT_URL ในโค้ดก่อนใช้งานครับ!');
-        return;
-      }
-
-      showToast("⏳ กำลังบันทึกลง Google Sheets...");
-      const stateObj = JSON.parse(getCurrentState());
-      stateObj.dictJson = JSON.stringify(cloudDictionary);
-
-      try {
-        await fetch(GOOGLE_SCRIPT_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(stateObj)
-        });
-
-        showToast("☁️ บันทึกลง Google Sheets (และซิงค์ DEST ที่ Cell Z1) เรียบร้อยแล้ว!");
-      } catch (err) {
-        alert("เกิดข้อผิดพลาดในการบันทึก: " + err);
       }
     }
 
@@ -808,16 +839,15 @@
         }
       });
 
-      cloudDictionary = dict;
-      saveToGoogleSheets();
+      syncCloudDictionary(dict);
       uncheckAllBoxes();
       saveState();
       saveToBrowser(true);
-      showToast(`อัปเดตชื่อเป็น "${cleanedNewName}" สำเร็จ!`);
+      showToast(`อัปเดตชื่อเป็น "${cleanedNewName}" และซิงค์ขึ้น Cloud สำเร็จ!`);
     }
 
     function openDictModal() {
-      loadFromGoogleSheets(true).then(() => {
+      fetchCloudDictionary().then(() => {
         const tbody = document.getElementById('dictTableBody');
         tbody.innerHTML = '';
 
@@ -849,16 +879,14 @@
     function deleteDictItem(key) {
       let dict = { ...cloudDictionary };
       delete dict[key];
-      cloudDictionary = dict;
-      saveToGoogleSheets();
+      syncCloudDictionary(dict);
       openDictModal();
       showToast(`ลบคำว่า "${key}" ออกจากฐานข้อมูลแล้ว`);
     }
 
     function clearAllDict() {
       if (confirm('คุณต้องการล้างฐานข้อมูลพจนานุกรม DESTINATION ทั้งหมดใช่หรือไม่?')) {
-        cloudDictionary = {};
-        saveToGoogleSheets();
+        syncCloudDictionary({});
         openDictModal();
         showToast('ล้างฐานข้อมูลพจนานุกรมเรียบร้อยแล้ว');
       }
@@ -1151,7 +1179,9 @@
       
       init2DDragSelect();
       loadTemplateFromDB();
-      loadFromGoogleSheets(true);
+      fetchCloudDictionary().then(() => {
+        loadFromGoogleSheets(true);
+      });
       saveState();
     }
 
@@ -1518,7 +1548,7 @@
     function deleteSelectedRows() {
       const selectedBoxes = Array.from(document.querySelectorAll('.cmb-select:checked'));
       if (selectedBoxes.length === 0) {
-        alert('กรุณาเลือกติ๊กช่อง Checkbox หน้าแถวรายการที่ต้องการลบก่อนครับ!');
+        alert('กรุณาเลือกติ๊กช่อง Checkbox หน้าแถวที่ต้องการลบก่อนครับ!');
         return;
       }
 
