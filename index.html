@@ -1223,7 +1223,7 @@
       showToast(`คัดลอกข้อมูลเรียบร้อยแล้ว!`);
     }
 
-    // --- ฟังก์ชันแปลงเวลา รองรับทั้ง String และตัวเลข Excel Fractional Day (ป้อมกัน 1899) ---
+    // --- ฟังก์ชันแปลงเวลา รองรับทั้ง String และตัวเลข Excel Fractional Day (ป้องกัน 1899) ---
     function formatTimeValue(rawTime) {
       if (rawTime === undefined || rawTime === null || rawTime === '') return '';
 
@@ -1331,11 +1331,7 @@
             const headers = jsonRows[headerIdx];
             const etdCol = headers.indexOf('ETD');
             const destCol = headers.indexOf('Delivery to');
-            
-            // ค้นหาตำแหน่งคอลัมน์เวลาทุกรูปแบบที่เป็นไปได้ในไฟล์ลูกค้า
-            const timeCol = headers.indexOf('Time');
-            const pickupCol = headers.indexOf('Pickup Time');
-            const deliveryCol = headers.indexOf('Delivery Time');
+            const timeCol = headers.indexOf('Time'); // ดึงเวลาจากคอลัมน์ Time มาลงช่อง DELIVERY
 
             const qtyCol = headers.indexOf('Q\'ty');
             const pkgCol = headers.indexOf('Pkg.');
@@ -1356,17 +1352,7 @@
                   destName = dict[destName];
                 }
 
-                // ดึงค่าเวลาแยกแยะระหว่าง PICK UP และ DELIVERY ให้ครบถ้วน
-                let rawPickup = '';
-                if (pickupCol !== -1) rawPickup = row[pickupCol];
-                
-                let rawDelivery = '';
-                if (deliveryCol !== -1) {
-                  rawDelivery = row[deliveryCol];
-                } else if (timeCol !== -1) {
-                  rawDelivery = row[timeCol]; // ถ้ามีคอลัมน์ Time เดี่ยวๆ ให้ลงช่อง Delivery ตามค่ามาตรฐานเดิม
-                }
-
+                const rawTime = timeCol !== -1 ? row[timeCol] : '';
                 let uomVal = uomCol !== -1 && row[uomCol] ? String(row[uomCol]).trim() : '';
                 
                 let rawWhs = whsCol !== -1 && row[whsCol] ? String(row[whsCol]).trim().toUpperCase() : 'TTK';
@@ -1397,15 +1383,13 @@
                 else if (destName.includes('CHEMI')) partNameVal = 'CHEMI';
                 else if (destName.includes('STM')) partNameVal = 'POWDER';
 
-                const formattedPickup = formatTimeValue(rawPickup);
-                const formattedDelivery = formatTimeValue(rawDelivery);
+                const formattedTime = formatTimeValue(rawTime);
 
                 rawJobs.push({
                   section: sectionVal,
                   origin: whsVal,
                   dest: destName,
-                  pTime: formattedPickup,
-                  dTime: formattedDelivery,
+                  dTime: formattedTime, // บันทึกเวลาลง DELIVERY ตามโครงสร้างลูกค้า
                   partName: partNameVal,
                   amount: finalAmount,
                   uom: uomVal,
@@ -1424,7 +1408,6 @@
               section: job.section,
               origin: job.origin,
               dest: job.dest,
-              pTime: job.pTime,
               dTime: job.dTime,
               partName: job.partName,
               totalAmount: job.amount,
@@ -1452,8 +1435,7 @@
           document.getElementById(`sec_${index}`).value = job.section;
           document.getElementById(`org_${index}`).value = job.origin;
           document.getElementById(`dest_${index}`).value = job.dest;
-          document.getElementById(`pTime_${index}`).value = job.pTime; // บันทึกค่าเวลา PICK UP ลงช่องที่ถูกต้อง
-          document.getElementById(`dTime_${index}`).value = job.dTime; // บันทึกค่าเวลา DELIVERY ลงช่องที่ถูกต้อง
+          document.getElementById(`dTime_${index}`).value = job.dTime; // แสดงเวลาในช่อง DELIVERY
           document.getElementById(`part_${index}`).value = job.partName;
           document.getElementById(`qty_${index}`).value = `${job.totalAmount.toLocaleString()} ${job.uom}`;
           document.getElementById(`rmk_${index}`).value = job.remarkList.join(' | ');
