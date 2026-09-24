@@ -136,13 +136,13 @@
         <input type="file" id="fileInput" accept=".xlsx, .xls" style="display:none;" onchange="importCustomerFile(this)">
       </label>
 
-      <!-- โหลดฟอร์มต้นแบบและจำไว้ใน IndexedDB อัตโนมัติ ไม่ต้องโหลดซ้ำ -->
+      <!-- โหลดฟอร์มต้นแบบและจำไว้ใน IndexedDB อัตโนมัติ -->
       <label class="btn-file btn-template">
         📑 โหลดฟอร์มต้นแบบ (.xlsx)
         <input type="file" id="templateInput" accept=".xlsx, .xls" style="display:none;" onchange="loadTemplateFile(this)">
       </label>
       
-      <!-- เพิ่มปุ่มเลือกเปลี่ยน SUB ครบถ้วน รวมถึง TTK -->
+      <!-- เพิ่มปุ่มเปลี่ยน SUB ครบถ้วน รวมถึง TTK -->
       <div class="btn-group-custom">
         <span>🚚 เปลี่ยน SUB:</span>
         <button class="btn-opt" onclick="applySubToSelected('PL')">PL</button>
@@ -228,7 +228,7 @@
     let isPendingOnlyFilter = false;
     let templateArrayBuffer = null;
 
-    // --- ระบบจดจำไฟล์ Template เปล่าในเบราว์เซอร์ (IndexedDB) ไม่ให้อัปเดตซ้ำซ้อน ---
+    // --- ระบบจดจำไฟล์ Template เปล่าในเบราว์เซอร์ (IndexedDB) อัตโนมัติ ---
     function initIndexedDB() {
       return new Promise((resolve, reject) => {
         const request = indexedDB.open('WPLogisticsDB', 1);
@@ -344,7 +344,332 @@
       showToast(`เปลี่ยน ORIGIN เป็น ${orgValue} เรียบร้อย!`);
     }
 
+    // --- ระบบจัดกลุ่มตาม SUB และ ส่งออก Excel ---
+    function groupBySub() {
+      let rowsData = [];
+      for (let i = 1; i <= 78; i++) {
+        const dest = document.getElementById(`dest_${i}`)?.value || '';
+        if (dest.trim() !== '') {
+          rowsData.push({
+            sub: (document.getElementById(`sub_${i}`)?.value || '').trim().toUpperCase(),
+            w4: document.getElementById(`w4_${i}`)?.checked || false,
+            w6: document.getElementById(`w6_${i}`)?.checked || false,
+            w10: document.getElementById(`w10_${i}`)?.checked || false,
+            sec: document.getElementById(`sec_${i}`)?.value || '',
+            org: document.getElementById(`org_${i}`)?.value || '',
+            dest: dest,
+            pTime: document.getElementById(`pTime_${i}`)?.value || '',
+            dTime: document.getElementById(`dTime_${i}`)?.value || '',
+            part: document.getElementById(`part_${i}`)?.value || '',
+            qty: document.getElementById(`qty_${i}`)?.value || '',
+            rmk: document.getElementById(`rmk_${i}`)?.value || ''
+          });
+        }
+      }
+      if (rowsData.length === 0) { alert('ไม่มีข้อมูลสำหรับจัดกลุ่มครับ!'); return; }
+      const subOrder = { 'PL': 1, 'SVL': 2, 'SNS': 3, 'EXT': 4, 'TTK': 5 };
+      rowsData.sort((a, b) => (subOrder[a.sub] || 99) - (subOrder[b.sub] || 99));
+
+      for (let i = 1; i <= 78; i++) clearRowData(i);
+      rowsData.forEach((data, idx) => {
+        const rowIdx = idx + 1;
+        document.getElementById(`sub_${rowIdx}`).value = data.sub;
+        document.getElementById(`w4_${rowIdx}`).checked = data.w4;
+        document.getElementById(`w6_${rowIdx}`).checked = data.w6;
+        document.getElementById(`w10_${rowIdx}`).checked = data.w10;
+        document.getElementById(`sec_${rowIdx}`).value = data.sec;
+        document.getElementById(`org_${rowIdx}`).value = data.org;
+        document.getElementById(`dest_${rowIdx}`).value = data.dest;
+        document.getElementById(`pTime_${rowIdx}`).value = data.pTime;
+        document.getElementById(`dTime_${rowIdx}`).value = data.dTime;
+        document.getElementById(`part_${rowIdx}`).value = data.part;
+        document.getElementById(`qty_${rowIdx}`).value = data.qty;
+        document.getElementById(`rmk_${rowIdx}`).value = data.rmk;
+      });
+      uncheckAllBoxes();
+      saveState();
+      saveToBrowser(true);
+      showToast('🧩 จัดกลุ่มตาม SUB เรียบร้อยแล้ว!');
+    }
+
+    async function exportSubExcelFiles() {
+      const targetSubs = ['PL', 'SVL', 'SNS', 'EXT', 'TTK'];
+      const rawDate = document.getElementById('sheetDate').value;
+      let countExported = 0;
+      for (const subName of targetSubs) {
+        let subRows = [];
+        for (let i = 1; i <= 78; i++) {
+          const dest = document.getElementById(`dest_${i}`)?.value || '';
+          const currentSub = (document.getElementById(`sub_${i}`)?.value || '').trim().toUpperCase();
+          if (dest.trim() !== '' && currentSub === subName) {
+            subRows.push({
+              sub: currentSub,
+              sec: document.getElementById(`sec_${i}`)?.value || '',
+              org: document.getElementById(`org_${i}`)?.value || '',
+              dest: dest,
+              pTime: document.getElementById(`pTime_${i}`)?.value || '',
+              dTime: document.getElementById(`dTime_${i}`)?.value || '',
+              part: document.getElementById(`part_${i}`)?.value || '',
+              qty: document.getElementById(`qty_${i}`)?.value || '',
+              w4: document.getElementById(`w4_${i}`)?.checked || false,
+              w6: document.getElementById(`w6_${i}`)?.checked || false,
+              w10: document.getElementById(`w10_${i}`)?.checked || false
+            });
+          }
+        }
+        if (subRows.length > 0) {
+          await generateSingleSubExcel(subName, subRows, rawDate);
+          countExported++;
+        }
+      }
+      if (countExported === 0) alert('ไม่พบรายการ SUB สำหรับส่งออกครับ!');
+      else showToast(`📤 ส่งออก Excel สำเร็จ ${countExported} ไฟล์!`);
+    }
+
+    async function generateSingleSubExcel(subName, rowDataList, fullDateStr) {
+      const workbook = new ExcelJS.Workbook();
+      if (templateArrayBuffer) await workbook.xlsx.load(templateArrayBuffer);
+      let worksheet = workbook.getWorksheet(1) || workbook.addWorksheet('Sheet1');
+      const fileNameSub = (subName === 'EXT') ? 'EXTRA' : subName;
+
+      worksheet.getCell('T1').value = fullDateStr;
+      worksheet.getCell('K4').value = fileNameSub;
+
+      let startRow = 9;
+      rowDataList.forEach((item, index) => {
+        const rIdx = startRow + index;
+        worksheet.getCell(rIdx, 3).value = item.sec;
+        worksheet.getCell(rIdx, 4).value = item.org;
+        worksheet.getCell(rIdx, 5).value = item.dest;
+        worksheet.getCell(rIdx, 6).value = item.pTime;
+        worksheet.getCell(rIdx, 7).value = item.dTime;
+        worksheet.getCell(rIdx, 8).value = item.part;
+        worksheet.getCell(rIdx, 9).value = item.qty;
+        worksheet.getCell(rIdx, 10).value = item.w4 ? 'X' : '';
+        worksheet.getCell(rIdx, 11).value = item.w6 ? 'X' : '';
+        worksheet.getCell(rIdx, 12).value = item.w10 ? 'X' : '';
+        worksheet.getCell(rIdx, 15).value = item.sub;
+      });
+
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `${fileNameSub} ${fullDateStr}.xlsx`;
+      link.click();
+    }
+
+    // --- ระบบจัดการ DEST Dictionary ---
+    function getDestDictionary() {
+      const raw = localStorage.getItem('ttk_dest_dictionary');
+      return raw ? JSON.parse(raw) : {};
+    }
+    function saveDestDictionary(dict) {
+      localStorage.setItem('ttk_dest_dictionary', JSON.stringify(dict));
+    }
+    function updateSelectedDestName() {
+      const selectedBoxes = Array.from(document.querySelectorAll('.cmb-select:checked'));
+      if (selectedBoxes.length === 0) { alert('กรุณาเลือกแถวก่อนครับ!'); return; }
+      const firstRowIdx = selectedBoxes[0].getAttribute('data-row');
+      const currentDestVal = document.getElementById(`dest_${firstRowIdx}`)?.value || '';
+      const newDestName = prompt(`ระบุชื่อ DESTINATION ใหม่สำหรับคำว่า "${currentDestVal}":`, currentDestVal);
+      if (!newDestName || newDestName.trim() === '' || newDestName.trim() === currentDestVal) return;
+
+      const cleanedNewName = newDestName.trim();
+      let dict = getDestDictionary();
+      selectedBoxes.forEach(box => {
+        const rowIdx = box.getAttribute('data-row');
+        const destInput = document.getElementById(`dest_${rowIdx}`);
+        if (destInput) {
+          const oldVal = destInput.value.trim();
+          if (oldVal !== '') dict[oldVal] = cleanedNewName;
+          destInput.value = cleanedNewName;
+        }
+      });
+      saveDestDictionary(dict);
+      uncheckAllBoxes();
+      saveState();
+      saveToBrowser(true);
+      showToast(`อัปเดตชื่อสำเร็จ!`);
+    }
+
+    function openDictModal() {
+      const dict = getDestDictionary();
+      const tbody = document.getElementById('dictTableBody');
+      tbody.innerHTML = '';
+      const keys = Object.keys(dict);
+      if (keys.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#999;">ยังไม่มีข้อมูล</td></tr>';
+      } else {
+        keys.forEach(key => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td><b>${key}</b></td><td style="color:#28a745; font-weight:bold;">${dict[key]}</td><td style="text-align:center;"><button class="btn-del-dict" onclick="deleteDictItem('${key}')">ลบ</button></td>`;
+          tbody.appendChild(tr);
+        });
+      }
+      document.getElementById('dictModal').style.display = 'flex';
+    }
+    function closeDictModal() { document.getElementById('dictModal').style.display = 'none'; }
+    function deleteDictItem(key) {
+      let dict = getDestDictionary();
+      delete dict[key];
+      saveDestDictionary(dict);
+      openDictModal();
+      showToast(`ลบคำว่า "${key}" แล้ว`);
+    }
+    function clearAllDict() {
+      if (confirm('ล้างฐานข้อมูลทั้งหมดใช่หรือไม่?')) {
+        localStorage.removeItem('ttk_dest_dictionary');
+        openDictModal();
+        showToast('ล้างฐานข้อมูลเรียบร้อย');
+      }
+    }
+
+    // --- ระบบนำเข้าไฟล์ลูกค้า (Excel Import) ---
+    function importCustomerFile(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        let rawJobs = [];
+        let extractedDate = null;
+        const dict = getDestDictionary();
+
+        workbook.SheetNames.forEach(sheetName => {
+          const sheet = workbook.Sheets[sheetName];
+          const jsonRows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+          let headerIdx = -1;
+          for (let r = 0; r < jsonRows.length; r++) {
+            if (jsonRows[r] && jsonRows[r].includes('Delivery to')) { headerIdx = r; break; }
+          }
+          if (headerIdx !== -1) {
+            const headers = jsonRows[headerIdx];
+            const etdCol = headers.indexOf('ETD');
+            const destCol = headers.indexOf('Delivery to');
+            const timeCol = headers.indexOf('Time');
+            const qtyCol = headers.indexOf('Q\'ty');
+            const pkgCol = headers.indexOf('Pkg.');
+            const uomCol = headers.indexOf('UOM');
+            const whsCol = headers.indexOf('WHSCode');
+            const nameCol = headers.indexOf('Name');
+            const remarkCol = headers.indexOf('REMARK');
+
+            for (let i = headerIdx + 1; i < jsonRows.length; i++) {
+              const row = jsonRows[i];
+              if (row && row[destCol]) {
+                if (!extractedDate && etdCol !== -1 && row[etdCol]) {
+                  extractedDate = parseETDDate(row[etdCol]);
+                }
+                let destName = String(row[destCol]).trim();
+                if (dict[destName]) destName = dict[destName];
+
+                const rawTime = row[timeCol] ? String(row[timeCol]).trim() : '';
+                let uomVal = row[uomCol] ? String(row[uomCol]).trim() : '';
+                let rawWhs = whsCol !== -1 && row[whsCol] ? String(row[whsCol]).trim().toUpperCase() : 'TTK';
+                let whsVal = 'TTK';
+                if (rawWhs.includes('BAC')) whsVal = 'BAC';
+                else if (rawWhs.includes('SNS')) whsVal = 'SNS 2';
+
+                const nameVal = nameCol !== -1 && row[nameCol] ? String(row[nameCol]).trim() : '';
+                const origRemark = remarkCol !== -1 && row[remarkCol] ? String(row[remarkCol]).trim() : '';
+                const qVal = parseFloat(row[qtyCol]) || 0;
+                const pVal = parseFloat(row[pkgCol]) || 0;
+                let finalAmount = (uomVal !== 'KG') ? pVal : qVal;
+                if (uomVal === 'PC') uomVal = 'BOX';
+
+                let sectionVal = nameVal.length >= 4 ? nameVal.substring(2, 4).toUpperCase() : nameVal.toUpperCase();
+                let partNameVal = 'PART';
+                if (uomVal === 'KG') partNameVal = 'RESIN';
+                else if (uomVal.includes('ROL')) partNameVal = 'FABRIC';
+
+                rawJobs.push({
+                  section: sectionVal, origin: whsVal, dest: destName,
+                  time: formatTimeValue(rawTime), partName: partNameVal,
+                  amount: finalAmount, uom: uomVal, remark: origRemark
+                });
+              }
+            }
+          }
+        });
+
+        const groupedJobsMap = {};
+        rawJobs.forEach(job => {
+          const matchKey = `${job.section}|${job.dest}|${job.time}|${job.origin}|${job.uom}`;
+          if (!groupedJobsMap[matchKey]) {
+            groupedJobsMap[matchKey] = {
+              section: job.section, origin: job.origin, dest: job.dest, time: job.time,
+              partName: job.partName, totalAmount: job.amount, uom: job.uom,
+              remarkList: job.remark ? [job.remark] : []
+            };
+          } else {
+            groupedJobsMap[matchKey].totalAmount += job.amount;
+            if (job.remark && !groupedJobsMap[matchKey].remarkList.includes(job.remark)) {
+              groupedJobsMap[matchKey].remarkList.push(job.remark);
+            }
+          }
+        });
+
+        clearData(false);
+        if (extractedDate) document.getElementById('sheetDate').value = extractedDate;
+
+        let index = 1;
+        Object.values(groupedJobsMap).forEach(job => {
+          if (index > 78) return;
+          document.getElementById(`sec_${index}`).value = job.section;
+          document.getElementById(`org_${index}`).value = job.origin;
+          document.getElementById(`dest_${index}`).value = job.dest;
+          document.getElementById(`dTime_${index}`).value = job.time;
+          document.getElementById(`part_${index}`).value = job.partName;
+          document.getElementById(`qty_${index}`).value = `${job.totalAmount.toLocaleString()} ${job.uom}`;
+          document.getElementById(`rmk_${index}`).value = job.remarkList.join(' | ');
+          index++;
+        });
+
+        uncheckAllBoxes();
+        saveState();
+        saveToBrowser(true);
+        showToast(`นำเข้าสำเร็จ! (${index - 1} รายการ)`);
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function formatTimeValue(rawTime) {
+      if (!rawTime) return '';
+      let str = String(rawTime).trim().replace('.', ':');
+      if (!str.includes(':')) return `${str.padStart(2, '0')}:00`;
+      let parts = str.split(':');
+      return `${parts[0].padStart(2, '0')}:${(parts[1] || '00').padEnd(2, '0')}`;
+    }
+
+    function parseETDDate(rawETD) {
+      if (!rawETD) return null;
+      if (typeof rawETD === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(rawETD.trim())) return rawETD.trim();
+      if (typeof rawETD === 'number' && rawETD > 30000) {
+        let d = new Date((rawETD - (25567 + 2)) * 86400 * 1000);
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      }
+      return null;
+    }
+
+    // --- ฟังก์ชันพื้นฐานจัดการตาราง ---
     function uncheckAllBoxes() { document.querySelectorAll('.cmb-select').forEach(chk => chk.checked = false); }
+    function clearRowData(i) {
+      document.getElementById(`sub_${i}`).value = '';
+      document.getElementById(`w4_${i}`).checked = false;
+      document.getElementById(`w6_${i}`).checked = false;
+      document.getElementById(`w10_${i}`).checked = false;
+      document.getElementById(`sec_${i}`).value = '';
+      document.getElementById(`org_${i}`).value = '';
+      document.getElementById(`dest_${i}`).value = '';
+      document.getElementById(`pTime_${i}`).value = '';
+      document.getElementById(`dTime_${i}`).value = '';
+      document.getElementById(`part_${i}`).value = '';
+      document.getElementById(`qty_${i}`).value = '';
+      document.getElementById(`rmk_${i}`).value = '';
+    }
+
     function getCurrentState() {
       let state = { date: document.getElementById('sheetDate').value, rows: [] };
       for (let i = 1; i <= 78; i++) {
@@ -447,13 +772,36 @@
         tbody.appendChild(tr);
       }
       document.getElementById('truckTable').addEventListener('change', saveState);
-      loadTemplateFromDB(); // ดึง Template ที่จำไว้ในเครื่องอัตโนมัติ
+      initIndexedDB().then(() => loadTemplateFromDB());
       loadFromGoogleSheets(true);
       saveState();
     }
 
     function saveToBrowser(silent = false) {
       localStorage.setItem('ttk_truck_sheet_data', getCurrentState());
+    }
+
+    function copyAllTable() {
+      let tableText = "NO.\tSUB\t4W\t6W\t10W\tSECTION\tORIGIN\tDESTINATION\tPICK UP\tDELIVERY\tPARTS NAME\tQUANTITY\tREMARK\n";
+      for (let i = 1; i <= 78; i++) {
+        const dest = document.getElementById(`dest_${i}`)?.value || '';
+        if (dest) {
+          const sub = document.getElementById(`sub_${i}`)?.value || '';
+          const w4 = document.getElementById(`w4_${i}`)?.checked ? 'X' : '';
+          const w6 = document.getElementById(`w6_${i}`)?.checked ? 'X' : '';
+          const w10 = document.getElementById(`w10_${i}`)?.checked ? 'X' : '';
+          const sec = document.getElementById(`sec_${i}`)?.value || '';
+          const org = document.getElementById(`org_${i}`)?.value || '';
+          const pTime = document.getElementById(`pTime_${i}`)?.value || '';
+          const dTime = document.getElementById(`dTime_${i}`)?.value || '';
+          const part = document.getElementById(`part_${i}`)?.value || '';
+          const qty = document.getElementById(`qty_${i}`)?.value || '';
+          const rmk = document.getElementById(`rmk_${i}`)?.value || '';
+          tableText += `${i}\t${sub}\t${w4}\t${w6}\t${w10}\t${sec}\t${org}\t${dest}\t${pTime}\t${dTime}\t${part}\t${qty}\t${rmk}\n`;
+        }
+      }
+      navigator.clipboard.writeText(tableText);
+      showToast("คัดลอกตารางเรียบร้อย!");
     }
 
     function showToast(message) {
