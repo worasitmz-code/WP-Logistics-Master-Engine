@@ -40,42 +40,17 @@
     }
     .header-controls button:hover, .btn-file:hover { background-color: #e6b800; }
 
-    /* ปุ่ม Undo / Redo */
     .btn-undo-redo { background-color: #17a2b8 !important; color: #fff !important; }
-    .btn-undo-redo:hover { background-color: #138496 !important; }
-
-    /* ปุ่มกรองงานค้าง */
     .btn-pending-filter { background-color: #dc3545 !important; color: #fff !important; }
-    .btn-pending-filter:hover { background-color: #bd2130 !important; }
     .btn-pending-filter.active { background-color: #fd7e14 !important; outline: 2px solid #fff; }
-
-    /* ปุ่มแนบไฟล์ Template ต้นแบบ */
     .btn-template { background-color: #20c997 !important; color: #fff !important; }
-    .btn-template:hover { background-color: #1aa179 !important; }
-
-    /* ปุ่มอัปเดต DEST และดูฐานข้อมูล */
     .btn-update-dest { background-color: #e83e8c !important; color: #fff !important; }
-    .btn-update-dest:hover { background-color: #d63384 !important; }
-
     .btn-view-dict { background-color: #fd7e14 !important; color: #fff !important; }
-    .btn-view-dict:hover { background-color: #e06d10 !important; }
-
-    /* ปุ่ม Google Sheets Cloud */
     .btn-cloud-save { background-color: #28a745 !important; color: #fff !important; }
-    .btn-cloud-save:hover { background-color: #218838 !important; }
-
     .btn-cloud-load { background-color: #17a2b8 !important; color: #fff !important; }
-    .btn-cloud-load:hover { background-color: #117a8b !important; }
-
-    /* ปุ่มจัดกลุ่ม SUB */
     .btn-sort-sub { background-color: #6f42c1 !important; color: #fff !important; }
-    .btn-sort-sub:hover { background-color: #5a32a3 !important; }
-
-    /* ปุ่มส่งออก Excel ตามฟอร์ม */
     .btn-export-excel { background-color: #0d6efd !important; color: #fff !important; }
-    .btn-export-excel:hover { background-color: #0b5ed7 !important; }
 
-    /* กลุ่มปุ่มเลือกเปลี่ยน SUB และ ORIGIN ด้านบน */
     .btn-group-custom {
       background-color: #343a40;
       color: #fff;
@@ -93,46 +68,19 @@
       border-radius: 3px;
       cursor: pointer;
     }
-    .btn-opt:hover { background-color: #e0a800; }
     .btn-opt-clear { background-color: #dc3545; color: #fff; }
-    .btn-opt-clear:hover { background-color: #c82333; }
-
     .btn-combine { background-color: #20c997 !important; color: #fff !important; }
-    .btn-combine:hover { background-color: #1baa80 !important; }
-
     .btn-delete { background-color: #dc3545 !important; color: #fff !important; }
-    .btn-delete:hover { background-color: #c82333 !important; }
 
-    .table-container {
-      width: 100%;
-      overflow-x: auto;
-      background-color: #fff;
-      border: 2px solid #000;
-    }
-    table.control-sheet {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 11px;
-      text-align: center;
-    }
-    .title-row, .header-row {
-      background-color: #ffff00;
-      font-weight: bold;
-      border-bottom: 2px solid #000;
-    }
+    .table-container { width: 100%; overflow-x: auto; background-color: #fff; border: 2px solid #000; }
+    table.control-sheet { width: 100%; border-collapse: collapse; font-size: 11px; text-align: center; }
+    .title-row, .header-row { background-color: #ffff00; font-weight: bold; border-bottom: 2px solid #000; }
     .title-row td { padding: 8px; font-size: 14px; }
     .header-row th { border: 1px solid #000; padding: 6px 2px; white-space: nowrap; }
     .divider-left { border-right: 3px solid #000 !important; }
     
-    tbody tr td { 
-      border: 1px solid #ccc; 
-      padding: 0; 
-      height: 28px; 
-      position: relative;
-      cursor: cell;
-    }
+    tbody tr td { border: 1px solid #ccc; padding: 0; height: 28px; position: relative; cursor: cell; }
     tbody tr:nth-child(even) { background-color: #f9f9f9; }
-
     td.col-remark.pending-cell { background-color: #ffe8a1 !important; }
     
     .col-cb { width: 25px; background-color: #fff3cd; text-align: center; }
@@ -147,109 +95,27 @@
     .col-qty { width: 150px; text-align: left; font-weight: 500; }
     .col-remark { width: 150px; text-align: left; position: relative; }
     
-    td.selected-cell {
-      background-color: #007bff2e !important;
-      outline: 1.5px solid #0056b3;
-      outline-offset: -1px;
-      z-index: 10;
-    }
-
-    input.cell-input {
-      width: 100%;
-      height: 100%;
-      border: none;
-      background: transparent;
-      font-size: 11px;
-      padding: 0 4px;
-      text-align: inherit;
-      user-select: text;
-    }
+    td.selected-cell { background-color: #007bff2e !important; outline: 1.5px solid #0056b3; outline-offset: -1px; z-index: 10; }
+    input.cell-input { width: 100%; height: 100%; border: none; background: transparent; font-size: 11px; padding: 0 4px; text-align: inherit; user-select: text; }
     input.cell-input:focus { outline: none; background-color: #fff; }
 
     .pending-badge {
-      position: absolute;
-      right: 2px;
-      top: 2px;
-      background-color: #dc3545;
-      color: #fff;
-      font-size: 9px;
-      font-weight: bold;
-      padding: 1px 4px;
-      border-radius: 3px;
-      pointer-events: none;
-      z-index: 5;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+      position: absolute; right: 2px; top: 2px; background-color: #dc3545; color: #fff;
+      font-size: 9px; font-weight: bold; padding: 1px 4px; border-radius: 3px; pointer-events: none; z-index: 5;
     }
-
     .cell-hidden { visibility: hidden !important; }
 
-    /* Modal หน้าต่างฐานข้อมูลพจนานุกรม */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      z-index: 2000;
-      justify-content: center;
-      align-items: center;
-    }
-    .modal-content {
-      background: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      width: 550px;
-      max-width: 90%;
-      max-height: 80vh;
-      overflow-y: auto;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-    }
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 2px solid #333;
-      padding-bottom: 10px;
-      margin-bottom: 15px;
-    }
-    .dict-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 12px;
-      margin-bottom: 15px;
-    }
-    .dict-table th, .dict-table td {
-      border: 1px solid #ccc;
-      padding: 8px;
-      text-align: left;
-    }
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; justify-content: center; align-items: center; }
+    .modal-content { background: #fff; padding: 20px; border-radius: 8px; width: 550px; max-width: 90%; max-height: 80vh; overflow-y: auto; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 15px; }
+    .dict-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 15px; }
+    .dict-table th, .dict-table td { border: 1px solid #ccc; padding: 8px; text-align: left; }
     .dict-table th { background-color: #f0f0f0; }
-    .btn-del-dict {
-      background-color: #dc3545;
-      color: #fff;
-      border: none;
-      padding: 2px 6px;
-      border-radius: 3px;
-      cursor: pointer;
-      font-size: 11px;
-    }
-    .btn-del-dict:hover { background-color: #bd2130; }
+    .btn-del-dict { background-color: #dc3545; color: #fff; border: none; padding: 2px 6px; border-radius: 3px; cursor: pointer; font-size: 11px; }
 
     #copyToast {
-      visibility: hidden;
-      background-color: #28a745;
-      color: #fff;
-      text-align: center;
-      border-radius: 4px;
-      padding: 10px 16px;
-      position: fixed;
-      right: 20px;
-      bottom: 20px;
-      font-size: 13px;
-      font-weight: bold;
-      z-index: 1000;
-      opacity: 0;
-      transition: 0.3s;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      visibility: hidden; background-color: #28a745; color: #fff; text-align: center; border-radius: 4px;
+      padding: 10px 16px; position: fixed; right: 20px; bottom: 20px; font-size: 13px; font-weight: bold; z-index: 1000; opacity: 0; transition: 0.3s;
     }
     #copyToast.show { visibility: visible; opacity: 1; }
   </style>
@@ -262,32 +128,31 @@
       <div class="header-subtitle">Developed & Designed by Worasit Phalasin</div>
     </div>
     <div class="header-controls">
-      <!-- ปุ่ม Undo & Redo -->
-      <button class="btn-undo-redo" onclick="undo()" title="Ctrl+Z">↩️ ย้อนกลับ</button>
-      <button class="btn-undo-redo" onclick="redo()" title="Ctrl+Y">↪️ ทำซ้ำ</button>
+      <button class="btn-undo-redo" onclick="undo()">↩️ ย้อนกลับ</button>
+      <button class="btn-undo-redo" onclick="redo()">↪️ ทำซ้ำ</button>
 
       <label class="btn-file">
         📥 ดึงข้อมูลจากไฟล์ลูกค้า
         <input type="file" id="fileInput" accept=".xlsx, .xls" style="display:none;" onchange="importCustomerFile(this)">
       </label>
 
-      <!-- ปุ่มเลือกไฟล์ Template ต้นแบบ -->
+      <!-- โหลดฟอร์มต้นแบบและจำไว้ใน IndexedDB อัตโนมัติ ไม่ต้องโหลดซ้ำ -->
       <label class="btn-file btn-template">
         📑 โหลดฟอร์มต้นแบบ (.xlsx)
         <input type="file" id="templateInput" accept=".xlsx, .xls" style="display:none;" onchange="loadTemplateFile(this)">
       </label>
       
-      <!-- กลุ่มปุ่มเลือกเปลี่ยน SUB -->
+      <!-- เพิ่มปุ่มเลือกเปลี่ยน SUB ครบถ้วน รวมถึง TTK -->
       <div class="btn-group-custom">
         <span>🚚 เปลี่ยน SUB:</span>
         <button class="btn-opt" onclick="applySubToSelected('PL')">PL</button>
         <button class="btn-opt" onclick="applySubToSelected('SVL')">SVL</button>
         <button class="btn-opt" onclick="applySubToSelected('SNS')">SNS</button>
         <button class="btn-opt" onclick="applySubToSelected('EXT')">EXT</button>
+        <button class="btn-opt" onclick="applySubToSelected('TTK')">TTK</button>
         <button class="btn-opt btn-opt-clear" onclick="applySubToSelected('')">ล้าง</button>
       </div>
 
-      <!-- กลุ่มปุ่มเลือกเปลี่ยน ORIGIN -->
       <div class="btn-group-custom">
         <span>🏢 เปลี่ยน ORIGIN:</span>
         <button class="btn-opt" onclick="applyOriginToSelected('TTK')">TTK</button>
@@ -295,21 +160,12 @@
         <button class="btn-opt" onclick="applyOriginToSelected('SNS 2')">SNS 2</button>
       </div>
 
-      <!-- ปุ่มจัดกลุ่มตาม SUB -->
       <button class="btn-sort-sub" onclick="groupBySub()">🧩 จัดกลุ่มตาม SUB</button>
-
-      <!-- ปุ่มส่งออก Excel ตามแบบฟอร์ม (4 ไฟล์) -->
       <button class="btn-export-excel" onclick="exportSubExcelFiles()">📤 ส่งออก Excel แยก SUB</button>
-
-      <!-- ปุ่มอัปเดต DEST และดูฐานข้อมูล -->
       <button class="btn-update-dest" onclick="updateSelectedDestName()">✏️ อัปเดตชื่อ DEST</button>
       <button class="btn-view-dict" onclick="openDictModal()">📖 ดูฐานข้อมูล DEST</button>
-
-      <!-- ปุ่มบันทึก & ดึงข้อมูลผ่าน Google Sheets -->
       <button class="btn-cloud-save" onclick="saveToGoogleSheets()">☁️ บันทึกลง Google Sheets</button>
       <button class="btn-cloud-load" onclick="loadFromGoogleSheets()">🔄 ดึงข้อมูลจาก Sheets</button>
-
-      <!-- ปุ่มกรองงานค้าง -->
       <button id="pendingFilterBtn" class="btn-pending-filter" onclick="togglePendingFilter()">📌 แสดงเฉพาะงานค้าง (0)</button>
 
       <button class="btn-combine" onclick="confirmCombine()">🔗 รวมรายการ</button>
@@ -325,53 +181,24 @@
       <thead>
         <tr class="title-row">
           <td colspan="14" class="divider-left">Truck control sheet (Subcontractor) / ใบควบคุมการขนส่ง (รถร่วม) — WP Engine</td>
-          <td colspan="14">วันที่: <input type="date" id="sheetDate" value="2026-09-22" style="font-weight:bold; padding:2px;" onchange="onDateChanged()"></td>
+          <td colspan="14">วันที่: <input type="date" id="sheetDate" value="2026-09-24" style="font-weight:bold; padding:2px;" onchange="onDateChanged()"></td>
         </tr>
         <tr class="header-row">
-          <th class="col-cb">เลือก</th>
-          <th class="col-no">NO.</th>
-          <th class="col-sub">SUB</th>
-          <th class="col-chk">4W</th>
-          <th class="col-chk">6W</th>
-          <th class="col-chk">10W</th>
-          <th class="col-sec">SECTION</th>
-          <th class="col-org">ORIGIN</th>
-          <th class="col-dest">DESTINATION</th>
-          <th class="col-time">PICK UP</th>
-          <th class="col-time">DELIVERY</th>
-          <th class="col-part">PARTS NAME</th>
-          <th class="col-qty">QUANTITY</th>
-          <th class="col-remark divider-left">REMARK</th>
-
-          <th class="col-cb">เลือก</th>
-          <th class="col-no">NO.</th>
-          <th class="col-sub">SUB</th>
-          <th class="col-chk">4W</th>
-          <th class="col-chk">6W</th>
-          <th class="col-chk">10W</th>
-          <th class="col-sec">SECTION</th>
-          <th class="col-org">ORIGIN</th>
-          <th class="col-dest">DESTINATION</th>
-          <th class="col-time">PICK UP</th>
-          <th class="col-time">DELIVERY</th>
-          <th class="col-part">PARTS NAME</th>
-          <th class="col-qty">QUANTITY</th>
-          <th class="col-remark">REMARK</th>
+          <th class="col-cb">เลือก</th><th class="col-no">NO.</th><th class="col-sub">SUB</th><th class="col-chk">4W</th><th class="col-chk">6W</th><th class="col-chk">10W</th><th class="col-sec">SECTION</th><th class="col-org">ORIGIN</th><th class="col-dest">DESTINATION</th><th class="col-time">PICK UP</th><th class="col-time">DELIVERY</th><th class="col-part">PARTS NAME</th><th class="col-qty">QUANTITY</th><th class="col-remark divider-left">REMARK</th>
+          <th class="col-cb">เลือก</th><th class="col-no">NO.</th><th class="col-sub">SUB</th><th class="col-chk">4W</th><th class="col-chk">6W</th><th class="col-chk">10W</th><th class="col-sec">SECTION</th><th class="col-org">ORIGIN</th><th class="col-dest">DESTINATION</th><th class="col-time">PICK UP</th><th class="col-time">DELIVERY</th><th class="col-part">PARTS NAME</th><th class="col-qty">QUANTITY</th><th class="col-remark">REMARK</th>
         </tr>
       </thead>
       <tbody id="tableBody"></tbody>
     </table>
   </div>
 
-  <!-- Modal ป๊อปอัปดูฐานข้อมูลพจนานุกรม DESTINATION -->
   <div id="dictModal" class="modal-overlay">
     <div class="modal-content">
       <div class="modal-header">
         <h3 style="margin:0;">📖 ฐานข้อมูลการจับคู่ชื่อ DESTINATION</h3>
         <button onclick="closeDictModal()" style="border:none; background:none; font-size:18px; cursor:pointer; font-weight:bold;">❌</button>
       </div>
-      <p style="font-size:12px; color:#666; margin-bottom:10px;">รายการคำเดิมที่ระบบจำไว้ และจะถูกเปลี่ยนเป็นคำใหม่ให้อัตโนมัติเมื่อดึงไฟล์ Excel เข้ามา:</p>
-      
+      <p style="font-size:12px; color:#666; margin-bottom:10px;">รายการคำเดิมที่ระบบจำไว้:</p>
       <table class="dict-table">
         <thead>
           <tr>
@@ -382,7 +209,6 @@
         </thead>
         <tbody id="dictTableBody"></tbody>
       </table>
-
       <div style="display:flex; justify-content:space-between;">
         <button onclick="clearAllDict()" style="background-color:#dc3545; color:#fff; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:12px;">🗑️ ล้างฐานข้อมูลทั้งหมด</button>
         <button onclick="closeDictModal()" style="background-color:#6c757d; color:#fff; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:12px;">ปิดหน้าต่าง</button>
@@ -393,7 +219,6 @@
   <div id="copyToast"></div>
 
   <script>
-    // URL Google Apps Script Web App ของคุณ
     const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxB_zMqK3Fl2VK5piZGPelz7z2NrEk9TvZvDHU5rvlafVXIt64g1Ds5PvfWmIGfqL8h/exec';
 
     let undoStack = [];
@@ -401,164 +226,64 @@
     const MAX_HISTORY = 30;
     let isUndoRedoAction = false;
     let isPendingOnlyFilter = false;
-    let templateArrayBuffer = null; // เก็บไฟล์ Master Template (.xlsx)
+    let templateArrayBuffer = null;
 
-    // --- อ่านและบันทึกไฟล์ TEMPLATE ต้นแบบไว้ในระบบ ---
+    // --- ระบบจดจำไฟล์ Template เปล่าในเบราว์เซอร์ (IndexedDB) ไม่ให้อัปเดตซ้ำซ้อน ---
+    function initIndexedDB() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open('WPLogisticsDB', 1);
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => resolve(request.result);
+        request.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains('templates')) {
+            db.createObjectStore('templates');
+          }
+        };
+      });
+    }
+
+    async function saveTemplateToDB(arrayBuffer) {
+      try {
+        const db = await initIndexedDB();
+        const tx = db.transaction('templates', 'readwrite');
+        tx.objectStore('templates').put(arrayBuffer, 'master_template');
+      } catch (err) {}
+    }
+
+    async function loadTemplateFromDB() {
+      try {
+        const db = await initIndexedDB();
+        const tx = db.transaction('templates', 'readonly');
+        const req = tx.objectStore('templates').get('master_template');
+        req.onsuccess = () => {
+          if (req.result) {
+            templateArrayBuffer = req.result;
+          }
+        };
+      } catch (err) {}
+    }
+
     function loadTemplateFile(input) {
       const file = input.files[0];
       if (!file) return;
-
       const reader = new FileReader();
       reader.onload = function(e) {
         templateArrayBuffer = e.target.result;
-        showToast("📑 โหลดไฟล์ Template ต้นแบบเรียบร้อยพร้อมใช้งาน!");
+        saveTemplateToDB(templateArrayBuffer);
+        showToast("📑 โหลดและจดจำไฟล์ Template ต้นแบบเรียบร้อย!");
       };
       reader.readAsArrayBuffer(file);
     }
 
-    // --- SYSTEM ส่งออก EXCEL 4 ไฟล์ตาม SUB (PL, SVL, SNS, EXTRA) พร้อม HEADER MATCHING ---
-    async function exportSubExcelFiles() {
-      const targetSubs = ['PL', 'SVL', 'SNS', 'EXT'];
-      const rawDate = document.getElementById('sheetDate').value;
-      
-      let formattedDateStr = '01-09-26';
-      if (rawDate) {
-        const parts = rawDate.split('-');
-        if (parts.length === 3) {
-          const yy = parts[0].substring(2);
-          formattedDateStr = `${parts[2]}-${parts[1]}-${yy}`;
-        }
-      }
-
-      let countExported = 0;
-
-      for (const subName of targetSubs) {
-        let subRows = [];
-        
-        for (let i = 1; i <= 78; i++) {
-          const dest = document.getElementById(`dest_${i}`)?.value || '';
-          const currentSub = (document.getElementById(`sub_${i}`)?.value || '').trim().toUpperCase();
-          
-          if (dest.trim() !== '' && currentSub === subName) {
-            subRows.push({
-              sub: currentSub,
-              sec: document.getElementById(`sec_${i}`)?.value || '',
-              org: document.getElementById(`org_${i}`)?.value || '',
-              dest: dest,
-              pTime: document.getElementById(`pTime_${i}`)?.value || '',
-              dTime: document.getElementById(`dTime_${i}`)?.value || '',
-              part: document.getElementById(`part_${i}`)?.value || '',
-              qty: document.getElementById(`qty_${i}`)?.value || '',
-              w4: document.getElementById(`w4_${i}`)?.checked || false,
-              w6: document.getElementById(`w6_${i}`)?.checked || false,
-              w10: document.getElementById(`w10_${i}`)?.checked || false
-            });
-          }
-        }
-
-        if (subRows.length > 0) {
-          await generateSingleSubExcel(subName, subRows, formattedDateStr, rawDate);
-          countExported++;
-        }
-      }
-
-      if (countExported === 0) {
-        alert('ไม่พบรายการที่มีการระบุ SUB (PL, SVL, SNS, EXT) ในตารางสำหรับส่งออกครับ!');
-      } else {
-        showToast(`📤 ส่งออกไฟล์ Excel สำเร็จทั้งหมด ${countExported} ไฟล์!`);
-      }
-    }
-
-    async function generateSingleSubExcel(subName, rowDataList, formattedDateStr, fullDateStr) {
-      const workbook = new ExcelJS.Workbook();
-
-      if (templateArrayBuffer) {
-        await workbook.xlsx.load(templateArrayBuffer);
-      }
-
-      let worksheet = workbook.getWorksheet(1);
-      if (!worksheet) {
-        worksheet = workbook.addWorksheet('Truck Control Sheet');
-      }
-
-      const fileNameSub = (subName === 'EXT') ? 'EXTRA' : subName;
-
-      // เซ็ตวันที่ และชื่อ SUB ในตำแหน่งเดิมของฟอร์ม
-      worksheet.getCell('T1').value = fullDateStr;
-      worksheet.getCell('K4').value = fileNameSub;
-
-      // --- ระบบ HEADER MATCHING อัตโนมัติ ---
-      let headerRowIndex = 8;
-      let colMap = {};
-
-      const targetHeaderRow = worksheet.getRow(headerRowIndex);
-      targetHeaderRow.eachCell({ includeEmpty: false }, (cell, colNumber) => {
-        const val = String(cell.value || '').trim().toUpperCase();
-
-        if (val.includes('SECTION')) colMap['sec'] = colNumber;
-        else if (val.includes('ORIGIN')) colMap['org'] = colNumber;
-        else if (val.includes('DESTINATION')) colMap['dest'] = colNumber;
-        else if (val.includes('PICK UP')) colMap['pTime'] = colNumber;
-        else if (val.includes('DELIVERY')) colMap['dTime'] = colNumber;
-        else if (val.includes('PARTS')) colMap['part'] = colNumber;
-        else if (val.includes('QUANTITY')) colMap['qty'] = colNumber;
-        else if (val === '4W') colMap['w4'] = colNumber;
-        else if (val === '6W') colMap['w6'] = colNumber;
-        else if (val === '10W') colMap['w10'] = colNumber;
-        else if (val.includes('COMPANY')) colMap['company'] = colNumber;
-      });
-
-      // หากค้นหาแบบอัตโนมัติไม่เจอ ให้ใช้ Fallback Coordinate
-      if (!colMap['sec']) colMap['sec'] = 3;      // Col C
-      if (!colMap['org']) colMap['org'] = 4;      // Col D
-      if (!colMap['dest']) colMap['dest'] = 5;    // Col E
-      if (!colMap['pTime']) colMap['pTime'] = 6;  // Col F
-      if (!colMap['dTime']) colMap['dTime'] = 7;  // Col G
-      if (!colMap['part']) colMap['part'] = 8;    // Col H
-      if (!colMap['qty']) colMap['qty'] = 9;      // Col I
-      if (!colMap['w4']) colMap['w4'] = 10;       // Col J
-      if (!colMap['w6']) colMap['w6'] = 11;       // Col K
-      if (!colMap['w10']) colMap['w10'] = 12;     // Col L
-      if (!colMap['company']) colMap['company'] = 15; // Col O
-
-      let startRow = 9; 
-
-      rowDataList.forEach((item, index) => {
-        const rIdx = startRow + index;
-
-        if (colMap['sec']) worksheet.getCell(rIdx, colMap['sec']).value = item.sec;
-        if (colMap['org']) worksheet.getCell(rIdx, colMap['org']).value = item.org;
-        if (colMap['dest']) worksheet.getCell(rIdx, colMap['dest']).value = item.dest;
-        if (colMap['pTime']) worksheet.getCell(rIdx, colMap['pTime']).value = item.pTime;
-        if (colMap['dTime']) worksheet.getCell(rIdx, colMap['dTime']).value = item.dTime;
-        if (colMap['part']) worksheet.getCell(rIdx, colMap['part']).value = item.part;
-        if (colMap['qty']) worksheet.getCell(rIdx, colMap['qty']).value = item.qty;
-
-        if (colMap['w4']) worksheet.getCell(rIdx, colMap['w4']).value = item.w4 ? 'X' : '';
-        if (colMap['w6']) worksheet.getCell(rIdx, colMap['w6']).value = item.w6 ? 'X' : '';
-        if (colMap['w10']) worksheet.getCell(rIdx, colMap['w10']).value = item.w10 ? 'X' : '';
-
-        if (colMap['company']) worksheet.getCell(rIdx, colMap['company']).value = item.sub;
-      });
-
-      const buffer = await workbook.xlsx.writeBuffer();
-      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = `${fileNameSub} ${formattedDateStr}.xlsx`;
-      link.click();
-    }
-
-    // --- GOOGLE SHEETS API INTEGRATION ---
+    // --- ระบบ Google Sheets ---
     async function saveToGoogleSheets() {
       if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes('วาง_URL')) {
-        alert('กรุณาตั้งค่า GOOGLE_SCRIPT_URL ในโค้ดก่อนใช้งานครับ!');
+        alert('กรุณาตั้งค่า GOOGLE_SCRIPT_URL ก่อนครับ!');
         return;
       }
-
       showToast("⏳ กำลังบันทึกลง Google Sheets...");
       const stateObj = JSON.parse(getCurrentState());
-
       try {
         await fetch(GOOGLE_SCRIPT_URL, {
           method: 'POST',
@@ -566,40 +291,24 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(stateObj)
         });
-
         showToast("☁️ บันทึกลง Google Sheets เรียบร้อยแล้ว!");
       } catch (err) {
-        alert("เกิดข้อผิดพลาดในการบันทึก: " + err);
+        alert("เกิดข้อผิดพลาด: " + err);
       }
     }
 
     async function loadFromGoogleSheets(silent = false) {
-      if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes('วาง_URL')) {
-        if (!silent) alert('กรุณาตั้งค่า GOOGLE_SCRIPT_URL ในโค้ดก่อนใช้งานครับ!');
-        return;
-      }
-
+      if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes('วาง_URL')) return;
       const currentDateVal = document.getElementById('sheetDate').value;
-      if (!silent) showToast(`⏳ กำลังโหลดข้อมูลประจำวันที่ ${currentDateVal}...`);
-
       try {
         const res = await fetch(`${GOOGLE_SCRIPT_URL}?date=${currentDateVal}`);
         const result = await res.json();
-
         if (result.status === 'success') {
-          clearData(false); // ล้างตารางเดิมก่อนวาดตารางใหม่
-          const stateToApply = {
-            date: result.date,
-            rows: result.rows
-          };
-          applyState(JSON.stringify(stateToApply));
-          showToast(`🔄 ดึงข้อมูลวันที่ ${currentDateVal} จาก Google Sheets สำเร็จ!`);
-        } else {
-          if (!silent) alert(`ไม่พบข้อมูลที่บันทึกไว้ของวันที่ ${currentDateVal} ใน Google Sheets ครับ`);
+          clearData(false);
+          applyState(JSON.stringify({ date: result.date, rows: result.rows }));
+          if (!silent) showToast(`🔄 ดึงข้อมูลวันที่ ${currentDateVal} สำเร็จ!`);
         }
-      } catch (err) {
-        if (!silent) alert("เกิดข้อผิดพลาดในการดึงข้อมูล: " + err);
-      }
+      } catch (err) {}
     }
 
     function onDateChanged() {
@@ -609,300 +318,38 @@
 
     function applySubToSelected(subValue) {
       const selectedBoxes = Array.from(document.querySelectorAll('.cmb-select:checked'));
-      if (selectedBoxes.length === 0) {
-        alert('กรุณาเลือกติ๊กช่อง Checkbox หน้าแถวรายการที่ต้องการเปลี่ยน SUB ก่อนครับ!');
-        return;
-      }
-
+      if (selectedBoxes.length === 0) { alert('กรุณาเลือกแถวก่อนครับ!'); return; }
       selectedBoxes.forEach(box => {
         const rowIdx = box.getAttribute('data-row');
         const subInput = document.getElementById(`sub_${rowIdx}`);
-        if (subInput) {
-          subInput.value = subValue;
-        }
+        if (subInput) subInput.value = subValue;
       });
-
       uncheckAllBoxes();
       saveState();
       saveToBrowser(true);
-      showToast(subValue !== '' ? `เปลี่ยน SUB เป็น ${subValue} ทั้งหมด ${selectedBoxes.length} รายการแล้ว!` : `ล้าง SUB ทั้งหมด ${selectedBoxes.length} รายการแล้ว!`);
+      showToast(subValue !== '' ? `เปลี่ยน SUB เป็น ${subValue} เรียบร้อย!` : `ล้าง SUB เรียบร้อย!`);
     }
 
-    function groupBySub() {
-      let rowsData = [];
-      
-      for (let i = 1; i <= 78; i++) {
-        const dest = document.getElementById(`dest_${i}`)?.value || '';
-        if (dest.trim() !== '') {
-          rowsData.push({
-            sub: (document.getElementById(`sub_${i}`)?.value || '').trim().toUpperCase(),
-            w4: document.getElementById(`w4_${i}`)?.checked || false,
-            w6: document.getElementById(`w6_${i}`)?.checked || false,
-            w10: document.getElementById(`w10_${i}`)?.checked || false,
-            sec: document.getElementById(`sec_${i}`)?.value || '',
-            org: document.getElementById(`org_${i}`)?.value || '',
-            dest: dest,
-            pTime: document.getElementById(`pTime_${i}`)?.value || '',
-            dTime: document.getElementById(`dTime_${i}`)?.value || '',
-            part: document.getElementById(`part_${i}`)?.value || '',
-            qty: document.getElementById(`qty_${i}`)?.value || '',
-            rmk: document.getElementById(`rmk_${i}`)?.value || ''
-          });
-        }
-      }
-
-      if (rowsData.length === 0) {
-        alert('ไม่มีข้อมูลในตารางสำหรับจัดกลุ่มครับ!');
-        return;
-      }
-
-      const subOrder = { 'PL': 1, 'SVL': 2, 'SNS': 3, 'EXT': 4 };
-
-      rowsData.sort((a, b) => {
-        const orderA = subOrder[a.sub] || 99;
-        const orderB = subOrder[b.sub] || 99;
-
-        if (orderA !== orderB) {
-          return orderA - orderB;
-        }
-        return a.sub.localeCompare(b.sub);
-      });
-
-      for (let i = 1; i <= 78; i++) {
-        clearRowData(i);
-      }
-
-      rowsData.forEach((data, idx) => {
-        const rowIdx = idx + 1;
-        document.getElementById(`sub_${rowIdx}`).value = data.sub;
-        document.getElementById(`w4_${rowIdx}`).checked = data.w4;
-        document.getElementById(`w6_${rowIdx}`).checked = data.w6;
-        document.getElementById(`w10_${rowIdx}`).checked = data.w10;
-        document.getElementById(`sec_${rowIdx}`).value = data.sec;
-        document.getElementById(`org_${rowIdx}`).value = data.org;
-        document.getElementById(`dest_${rowIdx}`).value = data.dest;
-        document.getElementById(`pTime_${rowIdx}`).value = data.pTime;
-        document.getElementById(`dTime_${rowIdx}`).value = data.dTime;
-        document.getElementById(`part_${rowIdx}`).value = data.part;
-        document.getElementById(`qty_${rowIdx}`).value = data.qty;
-        document.getElementById(`rmk_${rowIdx}`).value = data.rmk;
-      });
-
-      uncheckAllBoxes();
-      saveState();
-      saveToBrowser(true);
-      showToast('🧩 จัดกลุ่มตารางตาม SUB เรียบร้อยแล้ว!');
-    }
-
-    function getDestDictionary() {
-      const raw = localStorage.getItem('ttk_dest_dictionary');
-      return raw ? JSON.parse(raw) : {};
-    }
-
-    function saveDestDictionary(dict) {
-      localStorage.setItem('ttk_dest_dictionary', JSON.stringify(dict));
-    }
-
-    function updateSelectedDestName() {
+    function applyOriginToSelected(orgValue) {
       const selectedBoxes = Array.from(document.querySelectorAll('.cmb-select:checked'));
-      if (selectedBoxes.length === 0) {
-        alert('กรุณาเลือกติ๊กช่อง Checkbox หน้าแถวรายการที่ต้องการอัปเดตชื่อ DESTINATION ก่อนครับ!');
-        return;
-      }
-
-      const firstRowIdx = selectedBoxes[0].getAttribute('data-row');
-      const currentDestVal = document.getElementById(`dest_${firstRowIdx}`)?.value || '';
-
-      const newDestName = prompt(`ระบุชื่อ DESTINATION ใหม่สำหรับคำว่า "${currentDestVal}":`, currentDestVal);
-      if (!newDestName || newDestName.trim() === '' || newDestName.trim() === currentDestVal) {
-        return;
-      }
-
-      const cleanedNewName = newDestName.trim();
-      let dict = getDestDictionary();
-
+      if (selectedBoxes.length === 0) { alert('กรุณาเลือกแถวก่อนครับ!'); return; }
       selectedBoxes.forEach(box => {
         const rowIdx = box.getAttribute('data-row');
-        const destInput = document.getElementById(`dest_${rowIdx}`);
-        if (destInput) {
-          const oldVal = destInput.value.trim();
-          if (oldVal !== '') {
-            dict[oldVal] = cleanedNewName;
-          }
-          destInput.value = cleanedNewName;
-        }
+        const orgInput = document.getElementById(`org_${rowIdx}`);
+        if (orgInput) orgInput.value = orgValue;
       });
-
-      saveDestDictionary(dict);
       uncheckAllBoxes();
       saveState();
       saveToBrowser(true);
-      showToast(`อัปเดตชื่อเป็น "${cleanedNewName}" และบันทึกลงฐานข้อมูลแล้ว!`);
+      showToast(`เปลี่ยน ORIGIN เป็น ${orgValue} เรียบร้อย!`);
     }
 
-    function openDictModal() {
-      const dict = getDestDictionary();
-      const tbody = document.getElementById('dictTableBody');
-      tbody.innerHTML = '';
-
-      const keys = Object.keys(dict);
-      if (keys.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#999;">ยังไม่มีข้อมูลการจับคู่ชื่อที่บันทึกไว้</td></tr>';
-      } else {
-        keys.forEach(key => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td><b>${key}</b></td>
-            <td style="color:#28a745; font-weight:bold;">${dict[key]}</td>
-            <td style="text-align:center;">
-              <button class="btn-del-dict" onclick="deleteDictItem('${key}')">ลบ</button>
-            </td>
-          `;
-          tbody.appendChild(tr);
-        });
-      }
-
-      document.getElementById('dictModal').style.display = 'flex';
-    }
-
-    function closeDictModal() {
-      document.getElementById('dictModal').style.display = 'none';
-    }
-
-    function deleteDictItem(key) {
-      let dict = getDestDictionary();
-      delete dict[key];
-      saveDestDictionary(dict);
-      openDictModal();
-      showToast(`ลบคำว่า "${key}" ออกจากฐานข้อมูลแล้ว`);
-    }
-
-    function clearAllDict() {
-      if (confirm('คุณต้องการล้างฐานข้อมูลพจนานุกรม DESTINATION ทั้งหมดใช่หรือไม่?')) {
-        localStorage.removeItem('ttk_dest_dictionary');
-        openDictModal();
-        showToast('ล้างฐานข้อมูลพจนานุกรมเรียบร้อยแล้ว');
-      }
-    }
-
-    function isPendingTask(remarkText) {
-      if (!remarkText) return false;
-      const str = String(remarkText).toUpperCase();
-
-      const hasLoadD1 = /\bLOAD\s*D[-_]?1\b/i.test(str);
-      const hasD1 = /\bD[-_]?1\b/i.test(str);
-
-      return hasLoadD1 || hasD1;
-    }
-
-    function scanPendingJobs() {
-      let pendingCount = 0;
-
-      for (let i = 1; i <= 78; i++) {
-        const rmkInput = document.getElementById(`rmk_${i}`);
-        if (!rmkInput) continue;
-
-        const rmkVal = rmkInput.value;
-        const tdRemark = rmkInput.closest('td');
-
-        const oldBadge = tdRemark.querySelector('.pending-badge');
-        if (oldBadge) oldBadge.remove();
-
-        if (isPendingTask(rmkVal)) {
-          pendingCount++;
-          
-          const badge = document.createElement('span');
-          badge.className = 'pending-badge';
-          badge.innerText = 'D-1';
-          tdRemark.appendChild(badge);
-          tdRemark.classList.add('pending-cell');
-        } else {
-          tdRemark.classList.remove('pending-cell');
-        }
-      }
-
-      const btn = document.getElementById('pendingFilterBtn');
-      if (btn) {
-        if (isPendingOnlyFilter) {
-          btn.innerText = `🔍 แสดงทั้งหมด (${pendingCount} งานค้าง)`;
-        } else {
-          btn.innerText = `📌 แสดงเฉพาะงานค้าง (${pendingCount})`;
-        }
-      }
-
-      applyPendingFilterView();
-    }
-
-    function togglePendingFilter() {
-      isPendingOnlyFilter = !isPendingOnlyFilter;
-      const btn = document.getElementById('pendingFilterBtn');
-      if (btn) {
-        if (isPendingOnlyFilter) btn.classList.add('active');
-        else btn.classList.remove('active');
-      }
-      scanPendingJobs();
-    }
-
-    function toggleRowSideVisibility(rowIdx, show) {
-      const isLeft = rowIdx <= 39;
-      const trIdx = isLeft ? rowIdx : rowIdx - 39;
-      const tr = document.querySelector(`tr[data-tr-idx="${trIdx}"]`);
-      if (!tr) return;
-
-      const cells = tr.children;
-      const startColIdx = isLeft ? 0 : 14;
-
-      for (let c = startColIdx; c < startColIdx + 14; c++) {
-        if (cells[c]) {
-          if (show) cells[c].classList.remove('cell-hidden');
-          else cells[c].classList.add('cell-hidden');
-        }
-      }
-    }
-
-    function applyPendingFilterView() {
-      for (let i = 1; i <= 39; i++) {
-        const leftNo = i, rightNo = i + 39;
-        const tr = document.querySelector(`tr[data-tr-idx="${i}"]`);
-        if (!tr) continue;
-
-        if (!isPendingOnlyFilter) {
-          tr.style.display = '';
-          toggleRowSideVisibility(leftNo, true);
-          toggleRowSideVisibility(rightNo, true);
-          continue;
-        }
-
-        const leftRmk = document.getElementById(`rmk_${leftNo}`)?.value || '';
-        const rightRmk = document.getElementById(`rmk_${rightNo}`)?.value || '';
-
-        const isLeftPending = isPendingTask(leftRmk);
-        const isRightPending = isPendingTask(rightRmk);
-
-        if (isLeftPending || isRightPending) {
-          tr.style.display = '';
-          toggleRowSideVisibility(leftNo, isLeftPending);
-          toggleRowSideVisibility(rightNo, isRightPending);
-        } else {
-          tr.style.display = 'none';
-        }
-      }
-    }
-
-    function uncheckAllBoxes() {
-      document.querySelectorAll('.cmb-select').forEach(chk => chk.checked = false);
-    }
-
+    function uncheckAllBoxes() { document.querySelectorAll('.cmb-select').forEach(chk => chk.checked = false); }
     function getCurrentState() {
-      let state = {
-        date: document.getElementById('sheetDate').value,
-        rows: []
-      };
-
+      let state = { date: document.getElementById('sheetDate').value, rows: [] };
       for (let i = 1; i <= 78; i++) {
         state.rows.push({
-          no: i,
-          sub: document.getElementById(`sub_${i}`)?.value || '',
+          no: i, sub: document.getElementById(`sub_${i}`)?.value || '',
           w4: document.getElementById(`w4_${i}`)?.checked || false,
           w6: document.getElementById(`w6_${i}`)?.checked || false,
           w10: document.getElementById(`w10_${i}`)?.checked || false,
@@ -923,12 +370,9 @@
       if (isUndoRedoAction) return;
       const stateStr = getCurrentState();
       if (undoStack.length > 0 && undoStack[undoStack.length - 1] === stateStr) return;
-
       undoStack.push(stateStr);
       if (undoStack.length > MAX_HISTORY) undoStack.shift();
       redoStack = [];
-
-      scanPendingJobs();
     }
 
     function applyState(stateStr) {
@@ -936,8 +380,7 @@
       try {
         const state = JSON.parse(stateStr);
         if (state.date) document.getElementById('sheetDate').value = state.date;
-
-        if (state.rows && state.rows.length > 0) {
+        if (state.rows) {
           state.rows.forEach(item => {
             const i = item.no;
             if (i >= 1 && i <= 78) {
@@ -957,35 +400,12 @@
           });
         }
         saveToBrowser(true);
-        scanPendingJobs();
-      } catch(e) {
-        console.error("Error applying state:", e);
-      }
+      } catch(e) {}
       isUndoRedoAction = false;
     }
 
-    function undo() {
-      if (undoStack.length <= 1) {
-        showToast("⚠️ ไม่สามารถย้อนกลับได้อีกแล้ว");
-        return;
-      }
-      const currentState = undoStack.pop();
-      redoStack.push(currentState);
-      const prevState = undoStack[undoStack.length - 1];
-      applyState(prevState);
-      showToast("↩️ ย้อนกลับเรียบร้อยแล้ว");
-    }
-
-    function redo() {
-      if (redoStack.length === 0) {
-        showToast("⚠️ ไม่มีขั้นตอนให้ทำซ้ำ");
-        return;
-      }
-      const nextState = redoStack.pop();
-      undoStack.push(nextState);
-      applyState(nextState);
-      showToast("↪️ ทำซ้ำเรียบร้อยแล้ว");
-    }
+    function undo() { if (undoStack.length <= 1) return; redoStack.push(undoStack.pop()); applyState(undoStack[undoStack.length - 1]); }
+    function redo() { if (redoStack.length === 0) return; const next = redoStack.pop(); undoStack.push(next); applyState(next); }
 
     function generateTable() {
       const tbody = document.getElementById('tableBody');
@@ -993,570 +413,47 @@
       for (let i = 1; i <= 39; i++) {
         const leftNo = i, rightNo = i + 39;
         const tr = document.createElement('tr');
-        tr.setAttribute('data-tr-idx', i);
-
         tr.innerHTML = `
-          <!-- ฝั่งซ้าย (1-39) -->
           <td class="col-cb"><input type="checkbox" class="cmb-select" data-row="${leftNo}"></td>
           <td class="col-no">${leftNo}</td>
-          <td class="selectable-td col-sub" data-row="${leftNo}" data-col-idx="0"><input class="cell-input" id="sub_${leftNo}" style="text-align:center; font-weight:bold;"></td>
+          <td class="col-sub"><input class="cell-input" id="sub_${leftNo}" style="text-align:center; font-weight:bold;"></td>
           <td class="col-chk"><input type="checkbox" id="w4_${leftNo}"></td>
           <td class="col-chk"><input type="checkbox" id="w6_${leftNo}"></td>
           <td class="col-chk"><input type="checkbox" id="w10_${leftNo}"></td>
-          <td class="selectable-td col-sec" data-row="${leftNo}" data-col-idx="1"><input class="cell-input" id="sec_${leftNo}"></td>
-          <td class="selectable-td col-org" data-row="${leftNo}" data-col-idx="2"><input class="cell-input" id="org_${leftNo}" style="text-align:center; font-weight:bold;"></td>
-          <td class="selectable-td col-dest" data-row="${leftNo}" data-col-idx="3"><input class="cell-input" id="dest_${leftNo}"></td>
-          <td class="selectable-td col-time" data-row="${leftNo}" data-col-idx="4"><input class="cell-input" id="pTime_${leftNo}"></td>
-          <td class="selectable-td col-time" data-row="${leftNo}" data-col-idx="5"><input class="cell-input" id="dTime_${leftNo}"></td>
-          <td class="selectable-td col-part" data-row="${leftNo}" data-col-idx="6"><input class="cell-input" id="part_${leftNo}"></td>
-          <td class="selectable-td col-qty" data-row="${leftNo}" data-col-idx="7"><input class="cell-input" id="qty_${leftNo}"></td>
-          <td class="selectable-td col-remark divider-left" data-row="${leftNo}" data-col-idx="8"><input class="cell-input" id="rmk_${leftNo}"></td>
+          <td class="col-sec"><input class="cell-input" id="sec_${leftNo}"></td>
+          <td class="col-org"><input class="cell-input" id="org_${leftNo}" style="text-align:center; font-weight:bold;"></td>
+          <td class="col-dest"><input class="cell-input" id="dest_${leftNo}"></td>
+          <td class="col-time"><input class="cell-input" id="pTime_${leftNo}"></td>
+          <td class="col-time"><input class="cell-input" id="dTime_${leftNo}"></td>
+          <td class="col-part"><input class="cell-input" id="part_${leftNo}"></td>
+          <td class="col-qty"><input class="cell-input" id="qty_${leftNo}"></td>
+          <td class="col-remark divider-left"><input class="cell-input" id="rmk_${leftNo}"></td>
 
-          <!-- ฝั่งขวา (40-78) -->
           <td class="col-cb"><input type="checkbox" class="cmb-select" data-row="${rightNo}"></td>
           <td class="col-no">${rightNo}</td>
-          <td class="selectable-td col-sub" data-row="${rightNo}" data-col-idx="9"><input class="cell-input" id="sub_${rightNo}" style="text-align:center; font-weight:bold;"></td>
+          <td class="col-sub"><input class="cell-input" id="sub_${rightNo}" style="text-align:center; font-weight:bold;"></td>
           <td class="col-chk"><input type="checkbox" id="w4_${rightNo}"></td>
           <td class="col-chk"><input type="checkbox" id="w6_${rightNo}"></td>
           <td class="col-chk"><input type="checkbox" id="w10_${rightNo}"></td>
-          <td class="selectable-td col-sec" data-row="${rightNo}" data-col-idx="10"><input class="cell-input" id="sec_${rightNo}"></td>
-          <td class="selectable-td col-org" data-row="${rightNo}" data-col-idx="11"><input class="cell-input" id="org_${rightNo}" style="text-align:center; font-weight:bold;"></td>
-          <td class="selectable-td col-dest" data-row="${rightNo}" data-col-idx="12"><input class="cell-input" id="dest_${rightNo}"></td>
-          <td class="selectable-td col-time" data-row="${rightNo}" data-col-idx="13"><input class="cell-input" id="pTime_${rightNo}"></td>
-          <td class="selectable-td col-time" data-row="${rightNo}" data-col-idx="14"><input class="cell-input" id="dTime_${rightNo}"></td>
-          <td class="selectable-td col-part" data-row="${rightNo}" data-col-idx="15"><input class="cell-input" id="part_${rightNo}"></td>
-          <td class="selectable-td col-qty" data-row="${rightNo}" data-col-idx="16"><input class="cell-input" id="qty_${rightNo}"></td>
-          <td class="selectable-td col-remark" data-row="${rightNo}" data-col-idx="17"><input class="cell-input" id="rmk_${rightNo}"></td>
+          <td class="col-sec"><input class="cell-input" id="sec_${rightNo}"></td>
+          <td class="col-org"><input class="cell-input" id="org_${rightNo}" style="text-align:center; font-weight:bold;"></td>
+          <td class="col-dest"><input class="cell-input" id="dest_${rightNo}"></td>
+          <td class="col-time"><input class="cell-input" id="pTime_${rightNo}"></td>
+          <td class="col-time"><input class="cell-input" id="dTime_${rightNo}"></td>
+          <td class="col-part"><input class="cell-input" id="part_${rightNo}"></td>
+          <td class="col-qty"><input class="cell-input" id="qty_${rightNo}"></td>
+          <td class="col-remark"><input class="cell-input" id="rmk_${rightNo}"></td>
         `;
         tbody.appendChild(tr);
       }
-
       document.getElementById('truckTable').addEventListener('change', saveState);
-      
-      init2DDragSelect();
-      loadFromBrowser(true);
+      loadTemplateFromDB(); // ดึง Template ที่จำไว้ในเครื่องอัตโนมัติ
+      loadFromGoogleSheets(true);
       saveState();
-    }
-
-    function applyOriginToSelected(orgValue) {
-      const selectedBoxes = Array.from(document.querySelectorAll('.cmb-select:checked'));
-      if (selectedBoxes.length === 0) {
-        alert('กรุณาเลือกติ๊กช่อง Checkbox หน้าแถวรายการที่ต้องการเปลี่ยน ORIGIN ก่อนครับ!');
-        return;
-      }
-
-      selectedBoxes.forEach(box => {
-        const rowIdx = box.getAttribute('data-row');
-        const orgInput = document.getElementById(`org_${rowIdx}`);
-        if (orgInput) {
-          orgInput.value = orgValue;
-        }
-      });
-
-      uncheckAllBoxes();
-      saveState();
-      saveToBrowser(true);
-      showToast(`เปลี่ยน ORIGIN เป็น ${orgValue} ทั้งหมด ${selectedBoxes.length} รายการแล้ว!`);
     }
 
     function saveToBrowser(silent = false) {
-      const stateStr = getCurrentState();
-      localStorage.setItem('ttk_truck_sheet_data', stateStr);
-      if (!silent) {
-        showToast("💾 บันทึกงานลงใน Browser เรียบร้อยแล้ว!");
-      }
-    }
-
-    function loadFromBrowser(auto = false) {
-      const rawData = localStorage.getItem('ttk_truck_sheet_data');
-      if (!rawData) {
-        if (!auto) alert("ไม่พบบันทึกงานเดิมใน Browser ครับ");
-        return;
-      }
-      applyState(rawData);
-      if (!auto) showToast("📂 โหลดงานเดิมจาก Browser เรียบร้อยแล้ว!");
-    }
-
-    let isMouseDown = false;
-    let startTD = null;
-    let selectedTDs = [];
-
-    function init2DDragSelect() {
-      const table = document.getElementById('truckTable');
-
-      table.addEventListener('mousedown', function(e) {
-        const td = e.target.closest('td.selectable-td');
-        if (!td) return;
-
-        isMouseDown = true;
-        startTD = td;
-        clearCellSelections();
-        selectCell(td);
-      });
-
-      table.addEventListener('mouseover', function(e) {
-        if (!isMouseDown || !startTD) return;
-        const currentTD = e.target.closest('td.selectable-td');
-        if (!currentTD) return;
-
-        highlight2DRange(startTD, currentTD);
-      });
-
-      document.addEventListener('mouseup', function() {
-        isMouseDown = false;
-      });
-
-      document.addEventListener('keydown', function(e) {
-        if (e.ctrlKey || e.metaKey) {
-          const key = e.key.toLowerCase();
-          if (key === 'z') {
-            e.preventDefault();
-            if (e.shiftKey) redo();
-            else undo();
-          } else if (key === 'y') {
-            e.preventDefault();
-            redo();
-          } else if (key === 'c') {
-            if (selectedTDs.length > 0) {
-              e.preventDefault();
-              copySelectedGridText();
-            }
-          }
-        }
-      });
-    }
-
-    function selectCell(td) {
-      td.classList.add('selected-cell');
-      if (!selectedTDs.includes(td)) selectedTDs.push(td);
-    }
-
-    function clearCellSelections() {
-      selectedTDs.forEach(td => td.classList.remove('selected-cell'));
-      selectedTDs = [];
-    }
-
-    function highlight2DRange(start, end) {
-      clearCellSelections();
-
-      const startRow = parseInt(start.getAttribute('data-row'));
-      const endRow = parseInt(end.getAttribute('data-row'));
-      const startCol = parseInt(start.getAttribute('data-col-idx'));
-      const endCol = parseInt(end.getAttribute('data-col-idx'));
-
-      const minRow = Math.min(startRow, endRow);
-      const maxRow = Math.max(startRow, endRow);
-      const minCol = Math.min(startCol, endCol);
-      const maxCol = Math.max(startCol, endCol);
-
-      for (let r = minRow; r <= maxRow; r++) {
-        for (let c = minCol; c <= maxCol; c++) {
-          const targetTD = document.querySelector(`td.selectable-td[data-row="${r}"][data-col-idx="${c}"]`);
-          if (targetTD) {
-            selectCell(targetTD);
-          }
-        }
-      }
-    }
-
-    function copySelectedGridText() {
-      if (selectedTDs.length === 0) return;
-
-      let rowsMap = {};
-      selectedTDs.forEach(td => {
-        const r = parseInt(td.getAttribute('data-row'));
-        const c = parseInt(td.getAttribute('data-col-idx'));
-        const val = td.querySelector('input')?.value || '';
-
-        if (!rowsMap[r]) rowsMap[r] = {};
-        rowsMap[r][c] = val;
-      });
-
-      let textRows = [];
-      Object.keys(rowsMap).sort((a, b) => a - b).forEach(r => {
-        const rowColsMap = rowsMap[r];
-        let rowVals = [];
-        Object.keys(rowColsMap).sort((a, b) => a - b).forEach(c => {
-          rowVals.push(rowColsMap[c]);
-        });
-        textRows.push(rowVals.join('\t'));
-      });
-
-      const clipboardText = textRows.join('\n');
-      navigator.clipboard.writeText(clipboardText);
-      showToast(`คัดลอกข้อมูลเรียบร้อยแล้ว!`);
-    }
-
-    function formatTimeValue(rawTime) {
-      if (!rawTime) return '';
-      let str = String(rawTime).trim().replace('.', ':');
-      
-      if (!str.includes(':')) {
-        let num = parseInt(str);
-        if (!isNaN(num)) {
-          return `${String(num).padStart(2, '0')}:00`;
-        }
-        return str;
-      }
-
-      let parts = str.split(':');
-      let hh = parts[0].padStart(2, '0');
-      let mm = parts[1] || '00';
-
-      if (mm.length === 1) {
-        mm = mm + '0';
-      } else if (mm.length > 2) {
-        mm = mm.substring(0, 2);
-      }
-
-      return `${hh}:${mm}`;
-    }
-
-    function parseSectionFromName(nameStr) {
-      if (!nameStr) return '';
-      const str = String(nameStr).trim();
-      if (str.length >= 4) {
-        return str.substring(2, 4).toUpperCase();
-      } else if (str.length >= 2) {
-        return str.toUpperCase();
-      }
-      return str.toUpperCase();
-    }
-
-    function parseETDDate(rawETD) {
-      if (!rawETD) return null;
-      if (typeof rawETD === 'string') {
-        let str = rawETD.trim();
-        if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
-        if (str.includes('/')) {
-          let parts = str.split('/');
-          if (parts.length === 3) {
-            let dd = parts[0].padStart(2, '0');
-            let mm = parts[1].padStart(2, '0');
-            let yyyy = parts[2];
-            if (yyyy.length === 2) yyyy = '20' + yyyy;
-            return `${yyyy}-${mm}-${dd}`;
-          }
-        }
-      }
-      if (typeof rawETD === 'number' && rawETD > 30000) {
-        let dateObj = new Date((rawETD - (25567 + 2)) * 86400 * 1000);
-        let yyyy = dateObj.getFullYear();
-        let mm = String(dateObj.getMonth() + 1).padStart(2, '0');
-        let dd = String(dateObj.getDate()).padStart(2, '0');
-        return `${yyyy}-${mm}-${dd}`;
-      }
-      return null;
-    }
-
-    function importCustomerFile(input) {
-      const file = input.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        let rawJobs = [];
-        let extractedDate = null;
-        const dict = getDestDictionary();
-
-        workbook.SheetNames.forEach(sheetName => {
-          const sheet = workbook.Sheets[sheetName];
-          const jsonRows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-
-          let headerIdx = -1;
-          for (let r = 0; r < jsonRows.length; r++) {
-            if (jsonRows[r] && jsonRows[r].includes('Delivery to')) {
-              headerIdx = r;
-              break;
-            }
-          }
-
-          if (headerIdx !== -1) {
-            const headers = jsonRows[headerIdx];
-            const etdCol = headers.indexOf('ETD');
-            const destCol = headers.indexOf('Delivery to');
-            const timeCol = headers.indexOf('Time');
-            const qtyCol = headers.indexOf('Q\'ty');
-            const pkgCol = headers.indexOf('Pkg.');
-            const uomCol = headers.indexOf('UOM');
-            const whsCol = headers.indexOf('WHSCode');
-            const nameCol = headers.indexOf('Name');
-            const remarkCol = headers.indexOf('REMARK');
-
-            for (let i = headerIdx + 1; i < jsonRows.length; i++) {
-              const row = jsonRows[i];
-              if (row && row[destCol]) {
-                if (!extractedDate && etdCol !== -1 && row[etdCol]) {
-                  extractedDate = parseETDDate(row[etdCol]);
-                }
-
-                let destName = String(row[destCol]).trim();
-                
-                if (dict[destName]) {
-                  destName = dict[destName];
-                }
-
-                const rawTime = row[timeCol] ? String(row[timeCol]).trim() : '';
-                let uomVal = row[uomCol] ? String(row[uomCol]).trim() : '';
-                
-                let rawWhs = whsCol !== -1 && row[whsCol] ? String(row[whsCol]).trim().toUpperCase() : 'TTK';
-                let whsVal = 'TTK';
-                if (rawWhs.includes('BAC')) whsVal = 'BAC';
-                else if (rawWhs.includes('SNS')) whsVal = 'SNS 2';
-
-                const nameVal = nameCol !== -1 && row[nameCol] ? String(row[nameCol]).trim() : '';
-                const origRemark = row[remarkCol] ? String(row[remarkCol]).trim() : '';
-
-                const qVal = parseFloat(row[qtyCol]) || 0;
-                const pVal = parseFloat(row[pkgCol]) || 0;
-
-                let finalAmount = qVal;
-                if (uomVal !== 'KG') {
-                  finalAmount = pVal;
-                }
-
-                if (uomVal === 'PC') {
-                  uomVal = 'BOX';
-                }
-
-                let sectionVal = parseSectionFromName(nameVal);
-
-                let partNameVal = 'PART';
-                if (uomVal === 'KG') partNameVal = 'RESIN';
-                else if (uomVal === 'ROL' || uomVal === 'ROLL') partNameVal = 'FABRIC';
-                else if (destName.includes('CHEMI')) partNameVal = 'CHEMI';
-                else if (destName.includes('STM')) partNameVal = 'POWDER';
-
-                const formattedTime = formatTimeValue(rawTime);
-
-                rawJobs.push({
-                  section: sectionVal,
-                  origin: whsVal,
-                  dest: destName,
-                  time: formattedTime,
-                  partName: partNameVal,
-                  amount: finalAmount,
-                  uom: uomVal,
-                  remark: origRemark
-                });
-              }
-            }
-          }
-        });
-
-        const groupedJobsMap = {};
-        rawJobs.forEach(job => {
-          const matchKey = `${job.section}|${job.dest}|${job.time}|${job.origin}|${job.uom}`;
-          if (!groupedJobsMap[matchKey]) {
-            groupedJobsMap[matchKey] = {
-              section: job.section,
-              origin: job.origin,
-              dest: job.dest,
-              time: job.time,
-              partName: job.partName,
-              totalAmount: job.amount,
-              uom: job.uom,
-              remarkList: job.remark ? [job.remark] : []
-            };
-          } else {
-            groupedJobsMap[matchKey].totalAmount += job.amount;
-            if (job.remark && !groupedJobsMap[matchKey].remarkList.includes(job.remark)) {
-              groupedJobsMap[matchKey].remarkList.push(job.remark);
-            }
-          }
-        });
-
-        clearData(false);
-
-        if (extractedDate) {
-          document.getElementById('sheetDate').value = extractedDate;
-        }
-
-        let index = 1;
-        Object.values(groupedJobsMap).forEach(job => {
-          if (index > 78) return;
-
-          document.getElementById(`sec_${index}`).value = job.section;
-          document.getElementById(`org_${index}`).value = job.origin;
-          document.getElementById(`dest_${index}`).value = job.dest;
-          document.getElementById(`dTime_${index}`).value = job.time;
-          document.getElementById(`part_${index}`).value = job.partName;
-          document.getElementById(`qty_${index}`).value = `${job.totalAmount.toLocaleString()} ${job.uom}`;
-          document.getElementById(`rmk_${index}`).value = job.remarkList.join(' | ');
-
-          index++;
-        });
-
-        uncheckAllBoxes();
-        saveState();
-        saveToBrowser(true);
-        showToast(`นำเข้าสำเร็จ! (${index - 1} รายการ) ${extractedDate ? 'วันที่: ' + extractedDate : ''}`);
-      };
-
-      reader.readAsArrayBuffer(file);
-    }
-
-    function deleteSelectedRows() {
-      const selectedBoxes = Array.from(document.querySelectorAll('.cmb-select:checked'));
-      if (selectedBoxes.length === 0) {
-        alert('กรุณาเลือกติ๊กช่อง Checkbox หน้าแถวที่ต้องการลบก่อนครับ!');
-        return;
-      }
-
-      if (confirm(`คุณต้องการลบรายการที่เลือกทั้งหมด ${selectedBoxes.length} รายการใช่หรือไม่?`)) {
-        selectedBoxes.forEach(box => {
-          const rowIdx = box.getAttribute('data-row');
-          clearRowData(rowIdx);
-        });
-
-        uncheckAllBoxes();
-        realignTableRows();
-        saveState();
-        saveToBrowser(true);
-        showToast(`ลบรายการที่เลือกเรียบร้อยแล้ว (${selectedBoxes.length} รายการ)`);
-      }
-    }
-
-    function confirmCombine() {
-      const selectedBoxes = Array.from(document.querySelectorAll('.cmb-select:checked'));
-      if (selectedBoxes.length < 2) {
-        alert('กรุณาเลือกติ๊กช่อง Checkbox หน้าแถวที่ต้องการ COMBINE อย่างน้อย 2 รายการขึ้นไปครับ!');
-        return;
-      }
-
-      const rowsToCombine = selectedBoxes.map(box => parseInt(box.getAttribute('data-row'))).sort((a, b) => a - b);
-      const targetRow = rowsToCombine[0];
-
-      let secList = [], orgList = [], destList = [], pTimeList = [], dTimeList = [], partList = [], qtyList = [], rmkList = [];
-
-      rowsToCombine.forEach(rowIdx => {
-        const sec = document.getElementById(`sec_${rowIdx}`).value;
-        const org = document.getElementById(`org_${rowIdx}`).value;
-        const dest = document.getElementById(`dest_${rowIdx}`).value;
-        const pTime = document.getElementById(`pTime_${rowIdx}`).value;
-        const dTime = document.getElementById(`dTime_${rowIdx}`).value;
-        const part = document.getElementById(`part_${rowIdx}`).value;
-        const qty = document.getElementById(`qty_${rowIdx}`).value;
-        const rmk = document.getElementById(`rmk_${rowIdx}`).value;
-
-        if (sec) secList.push(sec);
-        if (org) orgList.push(org);
-        if (dest) destList.push(dest);
-        if (pTime) pTimeList.push(pTime);
-        if (dTime) dTimeList.push(dTime);
-        if (part) partList.push(part);
-        if (qty) qtyList.push(qty);
-        if (rmk) rmkList.push(rmk);
-      });
-
-      document.getElementById(`sec_${targetRow}`).value = secList.join('/');
-      document.getElementById(`org_${targetRow}`).value = isAllSame(orgList) ? orgList[0] : orgList.join('/');
-      document.getElementById(`dest_${targetRow}`).value = isAllSame(destList) ? destList[0] : destList.join('/');
-      document.getElementById(`pTime_${targetRow}`).value = isAllSame(pTimeList) ? pTimeList[0] : pTimeList.join('/');
-      document.getElementById(`dTime_${targetRow}`).value = isAllSame(dTimeList) ? dTimeList[0] : dTimeList.join('/');
-      document.getElementById(`part_${targetRow}`).value = isAllSame(partList) ? partList[0] : partList.join('/');
-      document.getElementById(`qty_${targetRow}`).value = qtyList.join(' / ');
-      document.getElementById(`rmk_${targetRow}`).value = [...new Set(rmkList)].join(' | ');
-
-      for (let i = 1; i < rowsToCombine.length; i++) {
-        clearRowData(rowsToCombine[i]);
-      }
-
-      uncheckAllBoxes();
-      realignTableRows();
-      saveState();
-      saveToBrowser(true);
-
-      showToast(`COMBINE รวมข้อมูลเรียบร้อยแล้วที่ลำดับ ${targetRow}`);
-    }
-
-    function isAllSame(arr) {
-      if (arr.length === 0) return true;
-      return arr.every(v => v === arr[0]);
-    }
-
-    function clearRowData(rowIdx) {
-      document.getElementById(`sub_${rowIdx}`).value = '';
-      document.getElementById(`w4_${rowIdx}`).checked = false;
-      document.getElementById(`w6_${rowIdx}`).checked = false;
-      document.getElementById(`w10_${rowIdx}`).checked = false;
-      document.getElementById(`sec_${rowIdx}`).value = '';
-      document.getElementById(`org_${rowIdx}`).value = '';
-      document.getElementById(`dest_${rowIdx}`).value = '';
-      document.getElementById(`pTime_${rowIdx}`).value = '';
-      document.getElementById(`dTime_${rowIdx}`).value = '';
-      document.getElementById(`part_${rowIdx}`).value = '';
-      document.getElementById(`qty_${rowIdx}`).value = '';
-      document.getElementById(`rmk_${rowIdx}`).value = '';
-    }
-
-    function realignTableRows() {
-      let activeRows = [];
-      for (let i = 1; i <= 78; i++) {
-        const dest = document.getElementById(`dest_${i}`).value;
-        if (dest && dest.trim() !== '') {
-          activeRows.push({
-            sub: document.getElementById(`sub_${i}`).value,
-            w4: document.getElementById(`w4_${i}`).checked,
-            w6: document.getElementById(`w6_${i}`).checked,
-            w10: document.getElementById(`w10_${i}`).checked,
-            sec: document.getElementById(`sec_${i}`).value,
-            org: document.getElementById(`org_${i}`).value,
-            dest: dest,
-            pTime: document.getElementById(`pTime_${i}`).value,
-            dTime: document.getElementById(`dTime_${i}`).value,
-            part: document.getElementById(`part_${i}`).value,
-            qty: document.getElementById(`qty_${i}`).value,
-            rmk: document.getElementById(`rmk_${i}`).value,
-          });
-        }
-      }
-
-      for (let i = 1; i <= 78; i++) {
-        clearRowData(i);
-      }
-
-      activeRows.forEach((data, idx) => {
-        const rowIdx = idx + 1;
-        document.getElementById(`sub_${rowIdx}`).value = data.sub;
-        document.getElementById(`w4_${rowIdx}`).checked = data.w4;
-        document.getElementById(`w6_${rowIdx}`).checked = data.w6;
-        document.getElementById(`w10_${rowIdx}`).checked = data.w10;
-        document.getElementById(`sec_${rowIdx}`).value = data.sec;
-        document.getElementById(`org_${rowIdx}`).value = data.org || '';
-        document.getElementById(`dest_${rowIdx}`).value = data.dest;
-        document.getElementById(`pTime_${rowIdx}`).value = data.pTime;
-        document.getElementById(`dTime_${rowIdx}`).value = data.dTime;
-        document.getElementById(`part_${rowIdx}`).value = data.part;
-        document.getElementById(`qty_${rowIdx}`).value = data.qty;
-        document.getElementById(`rmk_${rowIdx}`).value = data.rmk;
-      });
-    }
-
-    function copyAllTable() {
-      let tableText = "NO.\tSUB\t4W\t6W\t10W\tSECTION\tORIGIN\tDESTINATION\tPICK UP\tDELIVERY\tPARTS NAME\tQUANTITY\tREMARK\n";
-      for (let i = 1; i <= 78; i++) {
-        const dest = document.getElementById(`dest_${i}`)?.value || '';
-        const qty = document.getElementById(`qty_${i}`)?.value || '';
-        if (dest) {
-          const sub = document.getElementById(`sub_${i}`)?.value || '';
-          const w4 = document.getElementById(`w4_${i}`)?.checked ? 'X' : '';
-          const w6 = document.getElementById(`w6_${i}`)?.checked ? 'X' : '';
-          const w10 = document.getElementById(`w10_${i}`)?.checked ? 'X' : '';
-          const sec = document.getElementById(`sec_${i}`)?.value || '';
-          const org = document.getElementById(`org_${i}`)?.value || '';
-          const pTime = document.getElementById(`pTime_${i}`)?.value || '';
-          const dTime = document.getElementById(`dTime_${i}`)?.value || '';
-          const part = document.getElementById(`part_${i}`)?.value || '';
-          const rmk = document.getElementById(`rmk_${i}`)?.value || '';
-          
-          tableText += `${i}\t${sub}\t${w4}\t${w6}\t${w10}\t${sec}\t${org}\t${dest}\t${pTime}\t${dTime}\t${part}\t${qty}\t${rmk}\n`;
-        }
-      }
-      navigator.clipboard.writeText(tableText);
-      showToast("คัดลอกข้อมูลทั้งตารางเรียบร้อยแล้ว!");
+      localStorage.setItem('ttk_truck_sheet_data', getCurrentState());
     }
 
     function showToast(message) {
@@ -1567,10 +464,9 @@
     }
 
     function clearData(confirmNeed = true) {
-      if (!confirmNeed || confirm('คุณต้องการล้างข้อมูลทั้งหมดใช่หรือไม่?')) {
+      if (!confirmNeed || confirm('ล้างข้อมูลทั้งหมดใช่หรือไม่?')) {
         document.querySelectorAll('.cell-input').forEach(input => input.value = '');
         document.querySelectorAll('input[type="checkbox"]').forEach(chk => chk.checked = false);
-        clearCellSelections();
         localStorage.removeItem('ttk_truck_sheet_data');
         saveState();
       }
