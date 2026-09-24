@@ -322,14 +322,14 @@
       } catch (err) {}
     }
 
-    // ฟังก์ชันแก้ปัญหา CORS ส่งข้อมูลแบบ Form-Urlencoded ทะลุรอด 100%
+    // ฟังก์ชันส่งข้อมูลพจนานุกรมทะลุ CORS เพื่อซิงค์ทุกเครื่อง
     async function saveDictOnly() {
       if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes('วาง_URL')) {
         alert('กรุณาตั้งค่า GOOGLE_SCRIPT_URL ก่อนครับ!');
         return;
       }
 
-      showToast("⏳ กำลังบันทึกข้อมูลลงชีต DATA...");
+      showToast("⏳ กำลังบันทึกชื่อลูกค้าลงชีต DATA...");
 
       try {
         const formData = new URLSearchParams();
@@ -341,10 +341,10 @@
           body: formData
         });
 
-        showToast("💾 บันทึกข้อมูลลงแท็บชีต DATA สำเร็จ!");
+        showToast("💾 บันทึกชื่อลูกค้าลงชีต DATA สำเร็จทุกเครื่อง!");
         fetchCloudDictionary();
       } catch (err) {
-        alert("เกิดข้อผิดพลาด: " + err);
+        alert("เกิดข้อผิดพลาดในการบันทึก: " + err);
       }
     }
 
@@ -415,7 +415,7 @@
       });
 
       cloudDictionary = dict;
-      saveDictOnly(); // บันทึกลงชีต DATA อัตโนมัติทันที
+      saveDictOnly(); // บันทึกลงชีต DATA อัตโนมัติทุกเครื่องทันที
       uncheckAllBoxes();
       saveState();
       saveToBrowser(true);
