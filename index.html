@@ -259,7 +259,7 @@
   <div class="header-bar">
     <div class="header-title-container">
       <div class="header-title">⚡ WP Logistics Master Engine</div>
-      <div class="header-subtitle">Developed & Designed by Worasit Phalasin</div>
+      <div class="header-subtitle">Developed & Designed by Worasit Phalasin[cite: 4]</div>
     </div>
     <div class="header-controls">
       <!-- ปุ่ม Undo & Redo -->
@@ -325,8 +325,8 @@
     <table class="control-sheet" id="truckTable">
       <thead>
         <tr class="title-row">
-          <td colspan="14" class="divider-left">Truck control sheet (Subcontractor) / ใบควบคุมการขนส่ง (รถร่วม) — WP Engine</td>
-          <td colspan="14">วันที่: <input type="date" id="sheetDate" value="2026-09-22" style="font-weight:bold; padding:2px;" onchange="onDateChanged()"></td>
+          <td colspan="14" class="divider-left">Truck control sheet (Subcontractor) / ใบควบคุมการขนส่ง (รถร่วม) — WP Engine[cite: 4]</td>
+          <td colspan="14">วันที่: <input type="date" id="sheetDate" value="2026-09-23" style="font-weight:bold; padding:2px;" onchange="onDateChanged()"></td>
         </tr>
         <tr class="header-row">
           <th class="col-cb">เลือก</th>
@@ -1223,11 +1223,11 @@
       showToast(`คัดลอกข้อมูลเรียบร้อยแล้ว!`);
     }
 
-    // --- ฟังก์ชันแปลงเวลา รองรับทุกรูปแบบ (Serial, Date string, ทศนิยม) ---
+    // --- ฟังก์ชันแปลงเวลา รองรับทุกรูปแบบอย่างแม่นยำ ---
     function formatTimeValue(rawTime) {
       if (rawTime === undefined || rawTime === null || rawTime === '') return '';
 
-      // ถ้ารูปแบบเป็นตัวเลข Serial Number ของ Google Sheets/Excel (เช่น 0.5 สำหรับ 12:00)
+      // ถ้าเป็นรูปแบบตัวเลข Serial Number ของ Excel / Google Sheets
       if (typeof rawTime === 'number') {
         if (rawTime > 0 && rawTime < 1) {
           let totalMinutes = Math.round(rawTime * 24 * 60);
@@ -1242,27 +1242,23 @@
       }
 
       let str = String(rawTime).trim();
-      
-      // ดึงเวลาออกจากสตริงวันที่ปนเปื้อน (เช่น 1899-12-30T12:00:00.000Z หรือ 2026-09-23T12:00:00)
-      if (str.includes('T') || str.includes('1899-')) {
-        let partsT = str.split('T');
-        if (partsT.length > 1) {
-          let timeOnly = partsT[1].split('.')[0]; // ตัด Z หรือ milliseconds ออก
-          let tArr = timeOnly.split(':');
+
+      // ถ้ารูปแบบเป็นเวลาอยู่แล้ว เช่น 12:00 หรือ 9:00 ให้คืนค่าเลย
+      if (/^\d{1,2}:\d{2}$/.test(str)) {
+        let parts = str.split(':');
+        return `${parts[0].padStart(2, '0')}:${parts[1]}`;
+      }
+
+      // ถ้าติดสตริงวันที่ ISO (เช่น 1899-12-30T12:00:00.000Z หรือ 2026-09-23T...)
+      if (str.includes('T')) {
+        let timePart = str.split('T')[1];
+        if (timePart) {
+          let cleanTime = timePart.split('.')[0].replace('Z', '');
+          let tArr = cleanTime.split(':');
           if (tArr.length >= 2) {
             return `${tArr[0].padStart(2, '0')}:${tArr[1].padStart(2, '0')}`;
           }
         }
-      }
-
-      // ถ้าเป็นรูปแบบวันที่ขึ้นต้นด้วย 1899-12-30 แบบไม่มี T
-      if (str.startsWith('1899-12-30')) {
-        let cleanStr = str.replace('1899-12-30', '').trim();
-        if (cleanStr.includes(':')) {
-          let tArr = cleanStr.split(':');
-          return `${tArr[0].padStart(2, '0')}:${tArr[1] ? tArr[1].padStart(2, '0') : '00'}`;
-        }
-        return '';
       }
 
       str = str.replace('.', ':');
