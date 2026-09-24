@@ -326,7 +326,7 @@
       <thead>
         <tr class="title-row">
           <td colspan="14" class="divider-left">Truck control sheet (Subcontractor) / ใบควบคุมการขนส่ง (รถร่วม) — WP Engine[cite: 4]</td>
-          <td colspan="14">วันที่: <input type="date" id="sheetDate" value="2026-09-23" style="font-weight:bold; padding:2px;" onchange="onDateChanged()"></td>
+          <td colspan="14">วันที่: <input type="date" id="sheetDate" value="2026-09-24" style="font-weight:bold; padding:2px;" onchange="onDateChanged()"></td>
         </tr>
         <tr class="header-row">
           <th class="col-cb">เลือก</th>
@@ -1223,40 +1223,48 @@
       showToast(`คัดลอกข้อมูลเรียบร้อยแล้ว!`);
     }
 
-    // --- ฟังก์ชันแปลงเวลา แก้ไขปัญหาเพี้ยนและ Offset เวลา 7 ชั่วโมง ---
+    // --- ฟังก์ชันแปลงเวลาแบบแม่นยำ ป้องกันเวลาเพี้ยนจาก Timezone ---
     function formatTimeValue(rawTime) {
       if (rawTime === undefined || rawTime === null || rawTime === '') return '';
 
-      // ถ้าเป็น Serial Number ของ Excel (0 ถึง 1)
+      // ถ้าเป็นตัวเลข Serial Number ของ Excel (0 ถึง 1 เช่น 0.5 สำหรับ 12:00)
       if (typeof rawTime === 'number') {
-        if (rawTime > 0 && rawTime < 1) {
-          let totalMinutes = Math.round(rawTime * 24 * 60);
-          let hh = Math.floor(totalMinutes / 60) % 24;
-          let mm = totalMinutes % 60;
+        if (rawTime >= 0 && rawTime < 1) {
+          let totalSeconds = Math.round(rawTime * 24 * 60 * 60);
+          let hh = Math.floor(totalSeconds / 3600) % 24;
+          let mm = Math.floor((totalSeconds % 3600) / 60);
           return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
         }
       }
 
       let str = String(rawTime).trim();
 
-      // ถ้าอ่านค่าจากสตริง ISO ของ Date Object (เช่น 1899-12-30T19:47:00.000Z หรือมี Z)
+      // ถ้าติดสตริงเวลาแบบ ISO หรือมีตัว T (เช่น 1899-12-30T11:00:00.000Z)
       if (str.includes('T')) {
-        let dateObj = new Date(str);
-        if (!isNaN(dateObj.getTime())) {
-          // ดึงเวลาแบบ Local Time ของเครื่อง (แก้ปัญหา 7 ชั่วโมง)
-          let hh = String(dateObj.getHours()).padStart(2, '0');
-          let mm = String(dateObj.getMinutes()).padStart(2, '0');
-          return `${hh}:${mm}`;
+        let timePart = str.split('T')[1];
+        if (timePart) {
+          let cleanTime = timePart.split('.')[0].replace('Z', '');
+          let tArr = cleanTime.split(':');
+          if (tArr.length >= 2) {
+            // ใช้เวลา UTC โดยตรงเพื่อไม่ให้โดนแปลง Timezone ของเครื่องเพี้ยน
+            let dObj = new Date(str);
+            if (!isNaN(dObj.getTime())) {
+              let hh = String(dObj.getUTCHours()).padStart(2, '0');
+              let mm = String(dObj.getUTCMinutes()).padStart(2, '0');
+              return `${hh}:${mm}`;
+            }
+            return `${tArr[0].padStart(2, '0')}:${tArr[1].padStart(2, '0')}`;
+          }
         }
       }
 
-      // ถ้ารูปแบบเป็นเวลาอยู่แล้ว เช่น 08:30 หรือ 8:30
+      // ถ้ารูปแบบเป็นเวลาอยู่แล้ว เช่น 11:00 หรือ 7:30
       if (/^\d{1,2}:\d{2}$/.test(str)) {
         let parts = str.split(':');
         return `${parts[0].padStart(2, '0')}:${parts[1]}`;
       }
 
-      // รองรับทศนิยมเวลา เช่น 8.30
+      // รองรับทศนิยมเวลา เช่น 11.00 หรือ 7.30
       str = str.replace('.', ':');
       if (!str.includes(':')) {
         let num = parseInt(str);
@@ -1468,7 +1476,7 @@
     function deleteSelectedRows() {
       const selectedBoxes = Array.from(document.querySelectorAll('.cmb-select:checked'));
       if (selectedBoxes.length === 0) {
-        alert('กรุณาเลือกติ๊กช่อง Checkbox หน้าแถวที่ต้องการลบก่อนครับ!');
+        alert('กรุณาเลือกติ๊กช่อง Checkbox หน้าแถวรายการที่ต้องการลบก่อนครับ!');
         return;
       }
 
