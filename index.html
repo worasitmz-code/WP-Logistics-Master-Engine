@@ -1227,7 +1227,7 @@
     function formatTimeValue(rawTime) {
       if (rawTime === undefined || rawTime === null || rawTime === '') return '';
 
-      // ถ้าเป็นรูปแบบตัวเลข Serial Number ของ Excel / Google Sheets
+      // ถ้าเป็นตัวเลข Serial Number ของ Excel / Google Sheets
       if (typeof rawTime === 'number') {
         if (rawTime > 0 && rawTime < 1) {
           let totalMinutes = Math.round(rawTime * 24 * 60);
@@ -1235,10 +1235,6 @@
           let mm = totalMinutes % 60;
           return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
         }
-        let parts = rawTime.toFixed(2).split('.');
-        let hh = parts[0].padStart(2, '0');
-        let mm = parts[1] || '00';
-        return `${hh}:${mm}`;
       }
 
       let str = String(rawTime).trim();
@@ -1249,7 +1245,7 @@
         return `${parts[0].padStart(2, '0')}:${parts[1]}`;
       }
 
-      // ถ้าติดสตริงวันที่ ISO (เช่น 1899-12-30T12:00:00.000Z หรือ 2026-09-23T...)
+      // ถ้าติดสตริงวันที่ ISO (เช่น 1899-12-30T12:00:00.000Z)
       if (str.includes('T')) {
         let timePart = str.split('T')[1];
         if (timePart) {
@@ -1261,6 +1257,7 @@
         }
       }
 
+      // รองรับทศนิยมเวลา เช่น 10.00 หรือ 9.30 จากไฟล์ลูกค้า
       str = str.replace('.', ':');
       if (!str.includes(':')) {
         let num = parseInt(str);
