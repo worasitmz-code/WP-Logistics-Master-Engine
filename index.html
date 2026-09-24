@@ -1223,7 +1223,7 @@
       showToast(`คัดลอกข้อมูลเรียบร้อยแล้ว!`);
     }
 
-    // --- ฟังก์ชันแปลงเวลา รองรับทั้ง Serial Number จาก Google Sheets, ทศนิยม และสตริงเวลา ---
+    // --- ฟังก์ชันแปลงเวลา รองรับทุกรูปแบบ (Serial, Date string, ทศนิยม) ---
     function formatTimeValue(rawTime) {
       if (rawTime === undefined || rawTime === null || rawTime === '') return '';
 
@@ -1243,14 +1243,24 @@
 
       let str = String(rawTime).trim();
       
-      // ป้องกันกรณีติดสตริงวันที่ปลอมจาก Excel 1899-12-30
-      if (str.includes('1899-12-30') || str.includes('1899-12-31') || str.startsWith('1899-')) {
-        if (str.includes('T')) {
-          let timePart = str.split('T')[1];
-          if (timePart) {
-            let tArr = timePart.split(':');
-            return `${tArr[0].padStart(2, '0')}:${tArr[1] ? tArr[1].padStart(2, '0') : '00'}`;
+      // ดึงเวลาออกจากสตริงวันที่ปนเปื้อน (เช่น 1899-12-30T12:00:00.000Z หรือ 2026-09-23T12:00:00)
+      if (str.includes('T') || str.includes('1899-')) {
+        let partsT = str.split('T');
+        if (partsT.length > 1) {
+          let timeOnly = partsT[1].split('.')[0]; // ตัด Z หรือ milliseconds ออก
+          let tArr = timeOnly.split(':');
+          if (tArr.length >= 2) {
+            return `${tArr[0].padStart(2, '0')}:${tArr[1].padStart(2, '0')}`;
           }
+        }
+      }
+
+      // ถ้าเป็นรูปแบบวันที่ขึ้นต้นด้วย 1899-12-30 แบบไม่มี T
+      if (str.startsWith('1899-12-30')) {
+        let cleanStr = str.replace('1899-12-30', '').trim();
+        if (cleanStr.includes(':')) {
+          let tArr = cleanStr.split(':');
+          return `${tArr[0].padStart(2, '0')}:${tArr[1] ? tArr[1].padStart(2, '0') : '00'}`;
         }
         return '';
       }
