@@ -983,8 +983,8 @@
               if (document.getElementById(`sec_${i}`)) document.getElementById(`sec_${i}`).value = item.sec;
               if (document.getElementById(`org_${i}`)) document.getElementById(`org_${i}`).value = item.org;
               if (document.getElementById(`dest_${i}`)) document.getElementById(`dest_${i}`).value = item.dest;
-              if (document.getElementById(`pTime_${i}`)) document.getElementById(`pTime_${i}`).value = item.pTime;
-              if (document.getElementById(`dTime_${i}`)) document.getElementById(`dTime_${i}`).value = item.dTime;
+              if (document.getElementById(`pTime_${i}`)) document.getElementById(`pTime_${i}`).value = formatTimeValue(item.pTime);
+              if (document.getElementById(`dTime_${i}`)) document.getElementById(`dTime_${i}`).value = formatTimeValue(item.dTime);
               if (document.getElementById(`part_${i}`)) document.getElementById(`part_${i}`).value = item.part;
               if (document.getElementById(`qty_${i}`)) document.getElementById(`qty_${i}`).value = item.qty;
               if (document.getElementById(`rmk_${i}`)) document.getElementById(`rmk_${i}`).value = item.rmk;
@@ -1223,10 +1223,39 @@
       showToast(`คัดลอกข้อมูลเรียบร้อยแล้ว!`);
     }
 
+    // --- ฟังก์ชันแปลงเวลา รองรับทั้ง Serial Number จาก Google Sheets, ทศนิยม และสตริงเวลา ---
     function formatTimeValue(rawTime) {
-      if (!rawTime) return '';
-      let str = String(rawTime).trim().replace('.', ':');
+      if (rawTime === undefined || rawTime === null || rawTime === '') return '';
+
+      // ถ้ารูปแบบเป็นตัวเลข Serial Number ของ Google Sheets/Excel (เช่น 0.5 สำหรับ 12:00)
+      if (typeof rawTime === 'number') {
+        if (rawTime > 0 && rawTime < 1) {
+          let totalMinutes = Math.round(rawTime * 24 * 60);
+          let hh = Math.floor(totalMinutes / 60) % 24;
+          let mm = totalMinutes % 60;
+          return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
+        }
+        let parts = rawTime.toFixed(2).split('.');
+        let hh = parts[0].padStart(2, '0');
+        let mm = parts[1] || '00';
+        return `${hh}:${mm}`;
+      }
+
+      let str = String(rawTime).trim();
       
+      // ป้องกันกรณีติดสตริงวันที่ปลอมจาก Excel 1899-12-30
+      if (str.includes('1899-12-30') || str.includes('1899-12-31') || str.startsWith('1899-')) {
+        if (str.includes('T')) {
+          let timePart = str.split('T')[1];
+          if (timePart) {
+            let tArr = timePart.split(':');
+            return `${tArr[0].padStart(2, '0')}:${tArr[1] ? tArr[1].padStart(2, '0') : '00'}`;
+          }
+        }
+        return '';
+      }
+
+      str = str.replace('.', ':');
       if (!str.includes(':')) {
         let num = parseInt(str);
         if (!isNaN(num)) {
