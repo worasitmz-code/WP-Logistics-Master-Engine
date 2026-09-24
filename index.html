@@ -809,7 +809,7 @@
       showToast('🧩 จัดกลุ่มตารางตาม SUB เรียบร้อยแล้ว!');
     }
 
-    function updateSelectedDestName() {
+    async function updateSelectedDestName() {
       const selectedBoxes = Array.from(document.querySelectorAll('.cmb-select:checked'));
       if (selectedBoxes.length === 0) {
         alert('กรุณาเลือกติ๊กช่อง Checkbox หน้าแถวรายการที่ต้องการอัปเดตชื่อ DESTINATION ก่อนครับ!');
@@ -839,7 +839,9 @@
         }
       });
 
-      syncCloudDictionary(dict);
+      // รอให้ส่งข้อมูลพจนานุกรมขึ้น Cloud เรียบร้อยก่อน
+      await syncCloudDictionary(dict);
+      
       uncheckAllBoxes();
       saveState();
       saveToBrowser(true);
