@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WP Logistics Master Engine</title>
+  <title>WP Logistics Master Engine (140 Rows)</title>
   <!-- Libraries อ่านและเขียนไฟล์ Excel -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
@@ -231,7 +231,6 @@
 
     .cell-hidden { visibility: hidden !important; }
 
-    /* Modal หน้าต่างฐานข้อมูลพจนานุกรม */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -306,11 +305,10 @@
 
   <div class="header-bar">
     <div class="header-title-container">
-      <div class="header-title">⚡ WP Logistics Master Engine</div>
+      <div class="header-title">⚡ WP Logistics Master Engine (140 Rows)</div>
       <div class="header-subtitle">Developed & Designed by Worasit Phalasin</div>
     </div>
     <div class="header-controls">
-      <!-- ปุ่ม Undo & Redo -->
       <button class="btn-undo-redo" onclick="undo()" title="Ctrl+Z">↩️ ย้อนกลับ</button>
       <button class="btn-undo-redo" onclick="redo()" title="Ctrl+Y">↪️ ทำซ้ำ</button>
 
@@ -319,13 +317,11 @@
         <input type="file" id="fileInput" accept=".xlsx, .xls" style="display:none;" onchange="importCustomerFile(this)">
       </label>
 
-      <!-- ปุ่มเลือกไฟล์ Template ต้นแบบ -->
       <label class="btn-file btn-template">
         📑 โหลดฟอร์มต้นแบบ (.xlsx)
         <input type="file" id="templateInput" accept=".xlsx, .xls" style="display:none;" onchange="loadTemplateFile(this)">
       </label>
       
-      <!-- กลุ่มปุ่มเลือกเปลี่ยน SUB -->
       <div class="btn-group-custom">
         <span>🚚 เปลี่ยน SUB:</span>
         <button class="btn-opt" onclick="applySubToSelected('PL')">PL</button>
@@ -336,7 +332,6 @@
         <button class="btn-opt btn-opt-clear" onclick="applySubToSelected('')">ล้าง</button>
       </div>
 
-      <!-- กลุ่มปุ่มเลือกเปลี่ยน ORIGIN -->
       <div class="btn-group-custom">
         <span>🏢 เปลี่ยน ORIGIN:</span>
         <button class="btn-opt" onclick="applyOriginToSelected('TTK')">TTK</button>
@@ -344,21 +339,15 @@
         <button class="btn-opt" onclick="applyOriginToSelected('SNS 2')">SNS 2</button>
       </div>
 
-      <!-- ปุ่มจัดกลุ่มตาม SUB -->
       <button class="btn-sort-sub" onclick="groupBySub()">🧩 จัดกลุ่มตาม SUB</button>
-
-      <!-- ปุ่มส่งออก Excel ตามแบบฟอร์ม (แยกตาม SUB) -->
       <button class="btn-export-excel" onclick="exportSubExcelFiles()">📤 ส่งออก Excel แยก SUB</button>
 
-      <!-- ปุ่มอัปเดต DEST และดูฐานข้อมูล -->
       <button class="btn-update-dest" onclick="updateSelectedDestName()">✏️ อัปเดตชื่อ DEST</button>
       <button class="btn-view-dict" onclick="openDictModal()">📖 ดูฐานข้อมูล DEST</button>
 
-      <!-- ปุ่มบันทึก & ดึงข้อมูลผ่าน Google Sheets -->
       <button class="btn-cloud-save" onclick="saveToGoogleSheets()">☁️ บันทึกลง Google Sheets</button>
       <button class="btn-cloud-load" onclick="loadFromGoogleSheets()">🔄 ดึงข้อมูลจาก Sheets</button>
 
-      <!-- ปุ่มกรองงานค้าง -->
       <button id="pendingFilterBtn" class="btn-pending-filter" onclick="togglePendingFilter()">📌 แสดงเฉพาะงานค้าง (0)</button>
 
       <button class="btn-combine" onclick="confirmCombine()">🔗 รวมรายการ</button>
@@ -369,7 +358,6 @@
     </div>
   </div>
 
-  <!-- แถบสรุปจำนวนเที่ยวรถแยกตาม SUB -->
   <div class="sub-summary-container">
     <div class="sub-summary-title">📊 สรุปจำนวนเที่ยวรถ (SUB):</div>
     <div class="sub-badge">PL: <span id="count_PL">0</span> เที่ยว</div>
@@ -424,7 +412,6 @@
     </table>
   </div>
 
-  <!-- Modal หน้าต่างฐานข้อมูลพจนานุกรม DESTINATION -->
   <div id="dictModal" class="modal-overlay">
     <div class="modal-content">
       <div class="modal-header">
@@ -463,9 +450,8 @@
     let isUndoRedoAction = false;
     let isPendingOnlyFilter = false;
     let templateArrayBuffer = null;
-    let cloudDictionary = {}; // ฐานข้อมูล DEST กลางบน Cloud
+    let cloudDictionary = {};
 
-    // ระบบ IndexedDB สำหรับจัดเก็บไฟล์ Template ต้นแบบถาวร
     function initIndexedDB() {
       return new Promise((resolve, reject) => {
         const request = indexedDB.open('WPLogisticsDB', 1);
@@ -520,7 +506,6 @@
       reader.readAsArrayBuffer(file);
     }
 
-    // ดึงฐานข้อมูลพจนานุกรม DEST จาก Cloud (Google Sheets)
     async function fetchCloudDictionary() {
       if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes('วาง_URL')) return;
       try {
@@ -534,7 +519,6 @@
       }
     }
 
-    // บันทึกฐานข้อมูลพจนานุกรม DEST ลง Cloud (Google Sheets)
     async function syncCloudDictionary(newDict) {
       cloudDictionary = newDict;
       if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes('วาง_URL')) return;
@@ -573,7 +557,7 @@
       for (const subName of targetSubs) {
         let subRows = [];
         
-        for (let i = 1; i <= 78; i++) {
+        for (let i = 1; i <= 140; i++) {
           const dest = document.getElementById(`dest_${i}`)?.value || '';
           const currentSub = (document.getElementById(`sub_${i}`)?.value || '').trim().toUpperCase();
           
@@ -622,17 +606,17 @@
       worksheet.getCell('K4').value = fileNameSub;
 
       const colMap = {
-        'sec': 3,     // Col C
-        'org': 4,     // Col D
-        'dest': 5,    // Col E
-        'pTime': 6,   // Col F
-        'dTime': 7,   // Col G
-        'part': 8,    // Col H
-        'qty': 9,     // Col I
-        'w4': 10,     // Col J
-        'w6': 11,     // Col K
-        'w10': 12,    // Col L
-        'company': 15 // Col O
+        'sec': 3,
+        'org': 4,
+        'dest': 5,
+        'pTime': 6,
+        'dTime': 7,
+        'part': 8,
+        'qty': 9,
+        'w4': 10,
+        'w6': 11,
+        'w10': 12,
+        'company': 15
       };
 
       let startRow = 9;
@@ -745,7 +729,7 @@
     function groupBySub() {
       let rowsData = [];
       
-      for (let i = 1; i <= 78; i++) {
+      for (let i = 1; i <= 140; i++) {
         const dest = document.getElementById(`dest_${i}`)?.value || '';
         if (dest.trim() !== '') {
           rowsData.push({
@@ -782,7 +766,7 @@
         return a.sub.localeCompare(b.sub);
       });
 
-      for (let i = 1; i <= 78; i++) {
+      for (let i = 1; i <= 140; i++) {
         clearRowData(i);
       }
 
@@ -838,7 +822,7 @@
         }
       });
 
-      for (let i = 1; i <= 78; i++) {
+      for (let i = 1; i <= 140; i++) {
         const destInput = document.getElementById(`dest_${i}`);
         if (destInput && destInput.value.trim() === currentDestVal.trim()) {
           destInput.value = cleanedNewName;
@@ -924,7 +908,7 @@
         'TOTAL': 0
       };
 
-      for (let i = 1; i <= 78; i++) {
+      for (let i = 1; i <= 140; i++) {
         const dest = (document.getElementById(`dest_${i}`)?.value || '').trim();
         if (dest !== '') {
           counts['TOTAL']++;
@@ -950,7 +934,7 @@
     function scanPendingJobs() {
       let pendingCount = 0;
 
-      for (let i = 1; i <= 78; i++) {
+      for (let i = 1; i <= 140; i++) {
         const rmkInput = document.getElementById(`rmk_${i}`);
         if (!rmkInput) continue;
 
@@ -997,8 +981,8 @@
     }
 
     function toggleRowSideVisibility(rowIdx, show) {
-      const isLeft = rowIdx <= 39;
-      const trIdx = isLeft ? rowIdx : rowIdx - 39;
+      const isLeft = rowIdx <= 70;
+      const trIdx = isLeft ? rowIdx : rowIdx - 70;
       const tr = document.querySelector(`tr[data-tr-idx="${trIdx}"]`);
       if (!tr) return;
 
@@ -1014,8 +998,8 @@
     }
 
     function applyPendingFilterView() {
-      for (let i = 1; i <= 39; i++) {
-        const leftNo = i, rightNo = i + 39;
+      for (let i = 1; i <= 70; i++) {
+        const leftNo = i, rightNo = i + 70;
         const tr = document.querySelector(`tr[data-tr-idx="${i}"]`);
         if (!tr) continue;
 
@@ -1052,7 +1036,7 @@
         rows: []
       };
 
-      for (let i = 1; i <= 78; i++) {
+      for (let i = 1; i <= 140; i++) {
         state.rows.push({
           no: i,
           sub: document.getElementById(`sub_${i}`)?.value || '',
@@ -1093,7 +1077,7 @@
         if (state.rows && state.rows.length > 0) {
           state.rows.forEach(item => {
             const i = item.no;
-            if (i >= 1 && i <= 78) {
+            if (i >= 1 && i <= 140) {
               if (document.getElementById(`sub_${i}`)) document.getElementById(`sub_${i}`).value = item.sub;
               if (document.getElementById(`w4_${i}`)) document.getElementById(`w4_${i}`).checked = item.w4;
               if (document.getElementById(`w6_${i}`)) document.getElementById(`w6_${i}`).checked = item.w6;
@@ -1145,13 +1129,13 @@
     function generateTable() {
       const tbody = document.getElementById('tableBody');
       tbody.innerHTML = '';
-      for (let i = 1; i <= 39; i++) {
-        const leftNo = i, rightNo = i + 39;
+      for (let i = 1; i <= 70; i++) {
+        const leftNo = i, rightNo = i + 70;
         const tr = document.createElement('tr');
         tr.setAttribute('data-tr-idx', i);
 
         tr.innerHTML = `
-          <!-- ฝั่งซ้าย (1-39) -->
+          <!-- ฝั่งซ้าย (1-70) -->
           <td class="col-cb"><input type="checkbox" class="cmb-select" data-row="${leftNo}"></td>
           <td class="col-no">${leftNo}</td>
           <td class="selectable-td col-sub" data-row="${leftNo}" data-col-idx="0"><input class="cell-input" id="sub_${leftNo}" style="text-align:center; font-weight:bold;"></td>
@@ -1167,7 +1151,7 @@
           <td class="selectable-td col-qty" data-row="${leftNo}" data-col-idx="7"><input class="cell-input" id="qty_${leftNo}"></td>
           <td class="selectable-td col-remark divider-left" data-row="${leftNo}" data-col-idx="8"><input class="cell-input" id="rmk_${leftNo}"></td>
 
-          <!-- ฝั่งขวา (40-78) -->
+          <!-- ฝั่งขวา (71-140) -->
           <td class="col-cb"><input type="checkbox" class="cmb-select" data-row="${rightNo}"></td>
           <td class="col-no">${rightNo}</td>
           <td class="selectable-td col-sub" data-row="${rightNo}" data-col-idx="9"><input class="cell-input" id="sub_${rightNo}" style="text-align:center; font-weight:bold;"></td>
@@ -1534,7 +1518,7 @@
 
         let index = 1;
         Object.values(groupedJobsMap).forEach(job => {
-          if (index > 78) return;
+          if (index > 140) return;
 
           document.getElementById(`sec_${index}`).value = job.section;
           document.getElementById(`org_${index}`).value = job.origin;
@@ -1652,7 +1636,7 @@
 
     function realignTableRows() {
       let activeRows = [];
-      for (let i = 1; i <= 78; i++) {
+      for (let i = 1; i <= 140; i++) {
         const dest = document.getElementById(`dest_${i}`).value;
         if (dest && dest.trim() !== '') {
           activeRows.push({
@@ -1672,7 +1656,7 @@
         }
       }
 
-      for (let i = 1; i <= 78; i++) {
+      for (let i = 1; i <= 140; i++) {
         clearRowData(i);
       }
 
@@ -1695,7 +1679,7 @@
 
     function copyAllTable() {
       let tableText = "NO.\tSUB\t4W\t6W\t10W\tSECTION\tORIGIN\tDESTINATION\tPICK UP\tDELIVERY\tPARTS NAME\tQUANTITY\tREMARK\n";
-      for (let i = 1; i <= 78; i++) {
+      for (let i = 1; i <= 140; i++) {
         const dest = document.getElementById(`dest_${i}`)?.value || '';
         const qty = document.getElementById(`qty_${i}`)?.value || '';
         if (dest) {
