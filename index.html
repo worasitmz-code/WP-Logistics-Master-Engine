@@ -499,7 +499,6 @@
   <div id="copyToast"></div>
 
   <script>
-    // URL Google Apps Script Web App
     const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwjl5vubmnPzgopLZUpzGwkJc6VlRLMyyg2D1KTimMsxcat53ufYZKS_jR6TF3v0b3b/exec';
 
     let undoStack = [];
@@ -510,7 +509,6 @@
     let templateArrayBuffer = null;
     let cloudDictionary = {};
     
-    // 📌 ตัวแปรบันทึกลำดับการคลิก Checkbox สำหรับ COMBINE
     let selectedRowOrder = [];
 
     function initIndexedDB() {
@@ -588,7 +586,7 @@
         await fetch(GOOGLE_SCRIPT_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: payload
+          body: JSON.stringify(payload)
         });
       } catch (err) {
         console.error("Error saving dictionary to cloud:", err);
@@ -1087,7 +1085,6 @@
       }
     }
 
-    // 📌 จัดการการติ๊กเลือก Checkbox และอัปเดตลำดับตัวเลข
     function handleCheckboxChange(cb) {
       const rowIdx = parseInt(cb.getAttribute('data-row'));
       if (cb.checked) {
@@ -1209,7 +1206,7 @@
 
     function redo() {
       if (redoStack.length === 0) {
-        showToast("⚠️️ ไม่มีขั้นตอนให้ทำซ้ำ");
+        showToast("⚠️ ไม่มีขั้นตอนให้ทำซ้ำ");
         return;
       }
       const nextState = redoStack.pop();
@@ -1301,6 +1298,7 @@
       }
     }
 
+    /* 📌 ระบบลากคลุมอิสระ + ถอนโฟกัสชัวร์แก้ปัญหาติดแค่ K8 */
     let isMouseDown = false;
     let startTD = null;
     let selectedTDs = [];
@@ -1311,6 +1309,12 @@
       table.addEventListener('mousedown', function(e) {
         const td = e.target.closest('td.selectable-td');
         if (!td) return;
+
+        // 📌 ถอนโฟกัสจาก input ทุกตัวในระบบ เพื่อไม่ให้เบราว์เซอร์ล็อกจำช่องพิมพ์ K8
+        if (document.activeElement) {
+          document.activeElement.blur();
+        }
+        window.getSelection().removeAllRanges();
 
         isMouseDown = true;
         startTD = td;
@@ -1323,34 +1327,37 @@
         const currentTD = e.target.closest('td.selectable-td');
         if (!currentTD) return;
 
-        highlight2DRange(startTD, currentTD);
+        highlightVisualRange(startTD, currentTD);
       });
 
       document.addEventListener('mouseup', function() {
         isMouseDown = false;
       });
 
+      // 📌 ดักจับคำสั่ง Ctrl+C ในระดับ window สั่งเขียนตารางสีฟ้าลง Clipboard โดยตรง
+      window.addEventListener('copy', function(e) {
+        if (selectedTDs.length > 0) {
+          e.preventDefault();
+          const clipboardText = generateClipboardText();
+          if (e.clipboardData) {
+            e.clipboardData.setData('text/plain', clipboardText);
+            showToast(`📋 คัดลอกข้อมูล ${selectedTDs.length} ช่องเรียบร้อยแล้ว!`);
+          }
+        }
+      });
+
       document.addEventListener('keydown', function(e) {
-        if (e.ctrlKey || e.metaKey) {
-          const key = e.key.toLowerCase();
-          if (key === 'z') {
-            e.preventDefault();
-            if (e.shiftKey) redo();
-            else undo();
-          } else if (key === 'y') {
-            e.preventDefault();
-            redo();
-          } else if (key === 'c') {
-            if (selectedTDs.length > 0) {
-              e.preventDefault();
-              copySelectedGridText();
-            }
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c') {
+          if (selectedTDs.length > 0) {
+            // บังคับ Trigger Event copy
+            document.execCommand('copy');
           }
         }
       });
     }
 
     function selectCell(td) {
+      if (td.classList.contains('cell-hidden') || td.offsetParent === null) return;
       td.classList.add('selected-cell');
       if (!selectedTDs.includes(td)) selectedTDs.push(td);
     }
@@ -1360,55 +1367,63 @@
       selectedTDs = [];
     }
 
-    function highlight2DRange(start, end) {
+    function highlightVisualRange(start, end) {
       clearCellSelections();
 
-      const startRow = parseInt(start.getAttribute('data-row'));
-      const endRow = parseInt(end.getAttribute('data-row'));
-      const startCol = parseInt(start.getAttribute('data-col-idx'));
-      const endCol = parseInt(end.getAttribute('data-col-idx'));
+      const startRect = start.getBoundingClientRect();
+      const endRect = end.getBoundingClientRect();
 
-      const minRow = Math.min(startRow, endRow);
-      const maxRow = Math.max(startRow, endRow);
-      const minCol = Math.min(startCol, endCol);
-      const maxCol = Math.max(startCol, endCol);
+      const minX = Math.min(startRect.left, endRect.left);
+      const maxX = Math.max(startRect.right, endRect.right);
+      const minY = Math.min(startRect.top, endRect.top);
+      const maxY = Math.max(startRect.bottom, endRect.bottom);
 
-      for (let r = minRow; r <= maxRow; r++) {
-        for (let c = minCol; c <= maxCol; c++) {
-          const targetTD = document.querySelector(`td.selectable-td[data-row="${r}"][data-col-idx="${c}"]`);
-          if (targetTD) {
-            selectCell(targetTD);
-          }
+      const allSelectable = document.querySelectorAll('td.selectable-td');
+      allSelectable.forEach(td => {
+        if (td.classList.contains('cell-hidden') || td.offsetParent === null) return;
+
+        const rect = td.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+
+        if (centerX >= minX && centerX <= maxX && centerY >= minY && centerY <= maxY) {
+          selectCell(td);
         }
-      }
+      });
     }
 
-    function copySelectedGridText() {
-      if (selectedTDs.length === 0) return;
+    function generateClipboardText() {
+      if (selectedTDs.length === 0) return '';
 
-      let rowsMap = {};
+      let visualRows = [];
+
       selectedTDs.forEach(td => {
-        const r = parseInt(td.getAttribute('data-row'));
-        const c = parseInt(td.getAttribute('data-col-idx'));
-        const val = td.querySelector('input')?.value || '';
+        if (td.offsetParent === null) return;
+        const rect = td.getBoundingClientRect();
+        const topY = Math.round(rect.top);
+        const leftX = Math.round(rect.left);
 
-        if (!rowsMap[r]) rowsMap[r] = {};
-        rowsMap[r][c] = val;
+        let input = td.querySelector('input');
+        let val = input ? input.value : (td.innerText || '');
+
+        let foundRow = visualRows.find(r => Math.abs(r.y - topY) < 10);
+        if (!foundRow) {
+          foundRow = { y: topY, cols: [] };
+          visualRows.push(foundRow);
+        }
+        foundRow.cols.push({ x: leftX, val: val });
       });
 
+      visualRows.sort((a, b) => a.y - b.y);
+
       let textRows = [];
-      Object.keys(rowsMap).sort((a, b) => a - b).forEach(r => {
-        const rowColsMap = rowsMap[r];
-        let rowVals = [];
-        Object.keys(rowColsMap).sort((a, b) => a - b).forEach(c => {
-          rowVals.push(rowColsMap[c]);
-        });
+      visualRows.forEach(row => {
+        row.cols.sort((a, b) => a.x - b.x);
+        let rowVals = row.cols.map(c => c.val);
         textRows.push(rowVals.join('\t'));
       });
 
-      const clipboardText = textRows.join('\n');
-      navigator.clipboard.writeText(clipboardText);
-      showToast(`คัดลอกข้อมูลเรียบร้อยแล้ว!`);
+      return textRows.join('\r\n');
     }
 
     function formatTimeValue(rawTime) {
@@ -1653,7 +1668,6 @@
       }
     }
 
-    // 🔗 COMBINE ปรับปรุงระบบตามลำดับการคลิกเลือก (Click Order)
     function confirmCombine() {
       const selectedBoxes = Array.from(document.querySelectorAll('.cmb-select:checked'));
       if (selectedBoxes.length < 2) {
@@ -1661,13 +1675,11 @@
         return;
       }
 
-      // ดึงลำดับแถวตามที่ผู้ใช้คลิกเลือกจริง (selectedRowOrder)
       let rowsToCombine = selectedRowOrder.filter(rowIdx => {
         const cb = document.querySelector(`.cmb-select[data-row="${rowIdx}"]`);
         return cb && cb.checked;
       });
 
-      // ป้องกันกรณีลำดับใน Array ตกหล่น
       if (rowsToCombine.length < selectedBoxes.length) {
         selectedBoxes.forEach(box => {
           const r = parseInt(box.getAttribute('data-row'));
@@ -1675,7 +1687,7 @@
         });
       }
 
-      const targetRow = rowsToCombine[0]; // แถวที่กดเลือกแรกสุดเป็นแถวหลัก
+      const targetRow = rowsToCombine[0];
 
       let secList = [], orgList = [], destList = [], pTimeList = [], dTimeList = [], partList = [], qtyList = [], rmkList = [];
 
@@ -1699,7 +1711,6 @@
         if (rmk) rmkList.push(rmk);
       });
 
-      // เขียนข้อมูลรวมโดยยึดข้อมูลของแถวแรกสุดขึ้นนำหน้าเสมอ
       document.getElementById(`sec_${targetRow}`).value = isAllSame(secList) ? secList[0] : secList.join('/');
       document.getElementById(`org_${targetRow}`).value = isAllSame(orgList) ? orgList[0] : orgList.join('/');
       document.getElementById(`dest_${targetRow}`).value = isAllSame(destList) ? destList[0] : destList.join('/');
@@ -1709,7 +1720,6 @@
       document.getElementById(`qty_${targetRow}`).value = qtyList.join(' / ');
       document.getElementById(`rmk_${targetRow}`).value = [...new Set(rmkList)].join(' | ');
 
-      // ล้างข้อมูลแถวอื่นที่ถูกรวม
       for (let i = 1; i < rowsToCombine.length; i++) {
         clearRowData(rowsToCombine[i]);
       }
