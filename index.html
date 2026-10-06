@@ -183,7 +183,20 @@
 
     td.col-remark.pending-cell { background-color: #ffe8a1 !important; }
     
-    .col-cb { width: 25px; background-color: #fff3cd; text-align: center; }
+    .col-cb { width: 42px; background-color: #fff3cd; text-align: center; position: relative; }
+    .cb-order-badge {
+      position: absolute;
+      top: 1px;
+      right: 1px;
+      background: #007bff;
+      color: #fff;
+      font-size: 9px;
+      font-weight: bold;
+      border-radius: 8px;
+      padding: 0 4px;
+      line-height: 12px;
+      pointer-events: none;
+    }
     .col-no { width: 30px; font-weight: bold; background-color: #f0f0f0; text-align: center; }
     .col-sub { width: 45px; font-weight: bold; }
     .col-chk { width: 25px; text-align: center; }
@@ -299,6 +312,51 @@
       box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     }
     #copyToast.show { visibility: visible; opacity: 1; }
+
+    /* 🖨️ สไตล์สำหรับการพิมพ์ (Print Style A4 Full Page) */
+    @media print {
+      @page {
+        size: A4 landscape;
+        margin: 5mm;
+      }
+      body {
+        background-color: #fff !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      .header-bar, .sub-summary-container, .modal-overlay, #copyToast, .col-cb, .cb-order-badge {
+        display: none !important;
+      }
+      .table-container {
+        border: 1.5px solid #000 !important;
+        overflow: visible !important;
+        width: 100% !important;
+      }
+      table.control-sheet {
+        width: 100% !important;
+        font-size: 9.5px !important;
+      }
+      .title-row td {
+        padding: 4px !important;
+        font-size: 12px !important;
+      }
+      .header-row th {
+        padding: 3px 1px !important;
+        font-size: 9.5px !important;
+      }
+      tbody tr td {
+        height: 20px !important;
+      }
+      input.cell-input {
+        font-size: 9px !important;
+        padding: 0 2px !important;
+      }
+      input[type="checkbox"] {
+        transform: scale(0.85);
+      }
+    }
   </style>
 </head>
 <body>
@@ -451,6 +509,9 @@
     let isPendingOnlyFilter = false;
     let templateArrayBuffer = null;
     let cloudDictionary = {};
+    
+    // 📌 ตัวแปรบันทึกลำดับการคลิก Checkbox สำหรับ COMBINE
+    let selectedRowOrder = [];
 
     function initIndexedDB() {
       return new Promise((resolve, reject) => {
@@ -1026,8 +1087,39 @@
       }
     }
 
+    // 📌 จัดการการติ๊กเลือก Checkbox และอัปเดตลำดับตัวเลข
+    function handleCheckboxChange(cb) {
+      const rowIdx = parseInt(cb.getAttribute('data-row'));
+      if (cb.checked) {
+        if (!selectedRowOrder.includes(rowIdx)) {
+          selectedRowOrder.push(rowIdx);
+        }
+      } else {
+        selectedRowOrder = selectedRowOrder.filter(r => r !== rowIdx);
+      }
+      updateCheckboxBadges();
+    }
+
+    function updateCheckboxBadges() {
+      document.querySelectorAll('.cb-order-badge').forEach(b => b.remove());
+      selectedRowOrder.forEach((rowIdx, index) => {
+        const cb = document.querySelector(`.cmb-select[data-row="${rowIdx}"]`);
+        if (cb && cb.checked) {
+          const parentTd = cb.closest('td');
+          if (parentTd) {
+            const badge = document.createElement('span');
+            badge.className = 'cb-order-badge';
+            badge.innerText = index + 1;
+            parentTd.appendChild(badge);
+          }
+        }
+      });
+    }
+
     function uncheckAllBoxes() {
       document.querySelectorAll('.cmb-select').forEach(chk => chk.checked = false);
+      selectedRowOrder = [];
+      updateCheckboxBadges();
     }
 
     function getCurrentState() {
@@ -1117,7 +1209,7 @@
 
     function redo() {
       if (redoStack.length === 0) {
-        showToast("⚠️ ไม่มีขั้นตอนให้ทำซ้ำ");
+        showToast("⚠️️ ไม่มีขั้นตอนให้ทำซ้ำ");
         return;
       }
       const nextState = redoStack.pop();
@@ -1136,7 +1228,7 @@
 
         tr.innerHTML = `
           <!-- ฝั่งซ้าย (1-70) -->
-          <td class="col-cb"><input type="checkbox" class="cmb-select" data-row="${leftNo}"></td>
+          <td class="col-cb"><input type="checkbox" class="cmb-select" data-row="${leftNo}" onchange="handleCheckboxChange(this)"></td>
           <td class="col-no">${leftNo}</td>
           <td class="selectable-td col-sub" data-row="${leftNo}" data-col-idx="0"><input class="cell-input" id="sub_${leftNo}" style="text-align:center; font-weight:bold;"></td>
           <td class="col-chk"><input type="checkbox" id="w4_${leftNo}"></td>
@@ -1152,7 +1244,7 @@
           <td class="selectable-td col-remark divider-left" data-row="${leftNo}" data-col-idx="8"><input class="cell-input" id="rmk_${leftNo}"></td>
 
           <!-- ฝั่งขวา (71-140) -->
-          <td class="col-cb"><input type="checkbox" class="cmb-select" data-row="${rightNo}"></td>
+          <td class="col-cb"><input type="checkbox" class="cmb-select" data-row="${rightNo}" onchange="handleCheckboxChange(this)"></td>
           <td class="col-no">${rightNo}</td>
           <td class="selectable-td col-sub" data-row="${rightNo}" data-col-idx="9"><input class="cell-input" id="sub_${rightNo}" style="text-align:center; font-weight:bold;"></td>
           <td class="col-chk"><input type="checkbox" id="w4_${rightNo}"></td>
@@ -1561,6 +1653,7 @@
       }
     }
 
+    // 🔗 COMBINE ปรับปรุงระบบตามลำดับการคลิกเลือก (Click Order)
     function confirmCombine() {
       const selectedBoxes = Array.from(document.querySelectorAll('.cmb-select:checked'));
       if (selectedBoxes.length < 2) {
@@ -1568,20 +1661,33 @@
         return;
       }
 
-      const rowsToCombine = selectedBoxes.map(box => parseInt(box.getAttribute('data-row'))).sort((a, b) => a - b);
-      const targetRow = rowsToCombine[0];
+      // ดึงลำดับแถวตามที่ผู้ใช้คลิกเลือกจริง (selectedRowOrder)
+      let rowsToCombine = selectedRowOrder.filter(rowIdx => {
+        const cb = document.querySelector(`.cmb-select[data-row="${rowIdx}"]`);
+        return cb && cb.checked;
+      });
+
+      // ป้องกันกรณีลำดับใน Array ตกหล่น
+      if (rowsToCombine.length < selectedBoxes.length) {
+        selectedBoxes.forEach(box => {
+          const r = parseInt(box.getAttribute('data-row'));
+          if (!rowsToCombine.includes(r)) rowsToCombine.push(r);
+        });
+      }
+
+      const targetRow = rowsToCombine[0]; // แถวที่กดเลือกแรกสุดเป็นแถวหลัก
 
       let secList = [], orgList = [], destList = [], pTimeList = [], dTimeList = [], partList = [], qtyList = [], rmkList = [];
 
       rowsToCombine.forEach(rowIdx => {
-        const sec = document.getElementById(`sec_${rowIdx}`).value;
-        const org = document.getElementById(`org_${rowIdx}`).value;
-        const dest = document.getElementById(`dest_${rowIdx}`).value;
-        const pTime = document.getElementById(`pTime_${rowIdx}`).value;
-        const dTime = document.getElementById(`dTime_${rowIdx}`).value;
-        const part = document.getElementById(`part_${rowIdx}`).value;
-        const qty = document.getElementById(`qty_${rowIdx}`).value;
-        const rmk = document.getElementById(`rmk_${rowIdx}`).value;
+        const sec = document.getElementById(`sec_${rowIdx}`)?.value || '';
+        const org = document.getElementById(`org_${rowIdx}`)?.value || '';
+        const dest = document.getElementById(`dest_${rowIdx}`)?.value || '';
+        const pTime = document.getElementById(`pTime_${rowIdx}`)?.value || '';
+        const dTime = document.getElementById(`dTime_${rowIdx}`)?.value || '';
+        const part = document.getElementById(`part_${rowIdx}`)?.value || '';
+        const qty = document.getElementById(`qty_${rowIdx}`)?.value || '';
+        const rmk = document.getElementById(`rmk_${rowIdx}`)?.value || '';
 
         if (sec) secList.push(sec);
         if (org) orgList.push(org);
@@ -1593,7 +1699,8 @@
         if (rmk) rmkList.push(rmk);
       });
 
-      document.getElementById(`sec_${targetRow}`).value = secList.join('/');
+      // เขียนข้อมูลรวมโดยยึดข้อมูลของแถวแรกสุดขึ้นนำหน้าเสมอ
+      document.getElementById(`sec_${targetRow}`).value = isAllSame(secList) ? secList[0] : secList.join('/');
       document.getElementById(`org_${targetRow}`).value = isAllSame(orgList) ? orgList[0] : orgList.join('/');
       document.getElementById(`dest_${targetRow}`).value = isAllSame(destList) ? destList[0] : destList.join('/');
       document.getElementById(`pTime_${targetRow}`).value = isAllSame(pTimeList) ? pTimeList[0] : pTimeList.join('/');
@@ -1602,6 +1709,7 @@
       document.getElementById(`qty_${targetRow}`).value = qtyList.join(' / ');
       document.getElementById(`rmk_${targetRow}`).value = [...new Set(rmkList)].join(' | ');
 
+      // ล้างข้อมูลแถวอื่นที่ถูกรวม
       for (let i = 1; i < rowsToCombine.length; i++) {
         clearRowData(rowsToCombine[i]);
       }
@@ -1713,6 +1821,8 @@
         document.querySelectorAll('.cell-input').forEach(input => input.value = '');
         document.querySelectorAll('input[type="checkbox"]').forEach(chk => chk.checked = false);
         clearCellSelections();
+        selectedRowOrder = [];
+        updateCheckboxBadges();
         localStorage.removeItem('ttk_truck_sheet_data');
         saveState();
       }
