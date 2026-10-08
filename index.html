@@ -1692,15 +1692,16 @@
       let secList = [], orgList = [], destList = [], pTimeList = [], dTimeList = [], partList = [], qtyList = [], rmkList = [];
 
       rowsToCombine.forEach(rowIdx => {
-        const sec = document.getElementById(`sec_${rowIdx}`)?.value || '';
-        const org = document.getElementById(`org_${rowIdx}`)?.value || '';
-        const dest = document.getElementById(`dest_${rowIdx}`)?.value || '';
-        const pTime = document.getElementById(`pTime_${rowIdx}`)?.value || '';
-        const dTime = document.getElementById(`dTime_${rowIdx}`)?.value || '';
-        const part = document.getElementById(`part_${rowIdx}`)?.value || '';
-        const qty = document.getElementById(`qty_${rowIdx}`)?.value || '';
-        const rmk = document.getElementById(`rmk_${rowIdx}`)?.value || '';
+        const sec = (document.getElementById(`sec_${rowIdx}`)?.value || '').trim();
+        const org = (document.getElementById(`org_${rowIdx}`)?.value || '').trim();
+        const dest = (document.getElementById(`dest_${rowIdx}`)?.value || '').trim();
+        const pTime = (document.getElementById(`pTime_${rowIdx}`)?.value || '').trim();
+        const dTime = (document.getElementById(`dTime_${rowIdx}`)?.value || '').trim();
+        const part = (document.getElementById(`part_${rowIdx}`)?.value || '').trim();
+        const qty = (document.getElementById(`qty_${rowIdx}`)?.value || '').trim();
+        const rmk = (document.getElementById(`rmk_${rowIdx}`)?.value || '').trim();
 
+        // กรองเฉพาะช่องที่มีข้อมูล เพื่อป้องกันคำว่า undefined และค่าว่างหลุดออกมา
         if (sec) secList.push(sec);
         if (org) orgList.push(org);
         if (dest) destList.push(dest);
@@ -1711,15 +1712,25 @@
         if (rmk) rmkList.push(rmk);
       });
 
-      document.getElementById(`sec_${targetRow}`).value = isAllSame(secList) ? secList[0] : secList.join('/');
-      document.getElementById(`org_${targetRow}`).value = isAllSame(orgList) ? orgList[0] : orgList.join('/');
-      document.getElementById(`dest_${targetRow}`).value = isAllSame(destList) ? destList[0] : destList.join('/');
-      document.getElementById(`pTime_${targetRow}`).value = isAllSame(pTimeList) ? pTimeList[0] : pTimeList.join('/');
-      document.getElementById(`dTime_${targetRow}`).value = isAllSame(dTimeList) ? dTimeList[0] : dTimeList.join('/');
-      document.getElementById(`part_${targetRow}`).value = isAllSame(partList) ? partList[0] : partList.join('/');
+      // 📌 1. SECTION & ORIGIN: แสดงต่อกันด้วย / ทุกกรณี (เช่น C6/C6, SNS 2/SNS 2)
+      document.getElementById(`sec_${targetRow}`).value = secList.join('/');
+      document.getElementById(`org_${targetRow}`).value = orgList.join('/');
+
+      // 📌 2. DESTINATION: แสดงต่อกันด้วย / 
+      document.getElementById(`dest_${targetRow}`).value = isAllSame(destList) ? (destList[0] || '') : destList.join('/');
+      
+      // 📌 3. PICK UP & DELIVERY: แสดงเฉพาะค่าเวลาที่มีอยู่ ป้องกัน undefined
+      document.getElementById(`pTime_${targetRow}`).value = isAllSame(pTimeList) ? (pTimeList[0] || '') : pTimeList.join('/');
+      document.getElementById(`dTime_${targetRow}`).value = isAllSame(dTimeList) ? (dTimeList[0] || '') : dTimeList.join('/');
+      
+      // 📌 4. PARTS NAME: ถ้าเหมือนกันขึ้นครั้งเดียว ถ้าต่างกันแสดงต่อด้วย /
+      document.getElementById(`part_${targetRow}`).value = isAllSame(partList) ? (partList[0] || '') : partList.join('/');
+      
+      // 📌 5. QUANTITY & REMARK
       document.getElementById(`qty_${targetRow}`).value = qtyList.join(' / ');
       document.getElementById(`rmk_${targetRow}`).value = [...new Set(rmkList)].join(' | ');
 
+      // ล้างข้อมูลแถวอื่นที่ถูกนำมารวม
       for (let i = 1; i < rowsToCombine.length; i++) {
         clearRowData(rowsToCombine[i]);
       }
