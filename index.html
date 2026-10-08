@@ -1,156 +1,231 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WP Logistics Master Engine (140 Rows)</title>
-  <!-- Libraries อ่านและเขียนไฟล์ Excel -->
+  <!-- Libraries for Excel Read/Write -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
   <style>
+    :root {
+      --bg-main: #111827;
+      --card-bg: #1f2937;
+      --text-main: #f9fafb;
+      --text-muted: #9ca3af;
+      --border-color: #374151;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --success: #059669;
+      --success-hover: #047857;
+      --warning: #d97706;
+      --warning-hover: #b45309;
+      --danger: #dc2626;
+      --danger-hover: #b91c1c;
+      --info: #0891b2;
+      --purple: #7c3aed;
+    }
+
     * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 0; user-select: none; }
-    body { background-color: #1a1a1a; color: #333; padding: 10px; }
-    
+    body { background-color: var(--bg-main); color: var(--text-main); padding: 12px; }
+
+    /* Header Bar */
     .header-bar {
-      background-color: #000;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
       color: #fff;
-      padding: 12px 20px;
+      padding: 14px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-radius: 4px 4px 0 0;
+      border-radius: 8px 8px 0 0;
+      border-bottom: 2px solid #38bdf8;
     }
     .header-title-container { display: flex; flex-direction: column; }
-    .header-title { font-size: 20px; font-weight: bold; color: #ffff00; letter-spacing: 0.5px; }
-    .header-subtitle { font-size: 11px; color: #aaa; font-style: italic; margin-top: 2px; }
-    
-    .header-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .header-controls button, .btn-file, .btn-group-custom {
-      background-color: #ffcc00;
+    .header-title { font-size: 20px; font-weight: 700; color: #38bdf8; letter-spacing: 0.5px; }
+
+    /* Control Panel 5 Zones Architecture */
+    .control-panel-container {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-top: none;
+      padding: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 10px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    }
+
+    .zone-card {
+      background-color: #111827;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 6px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .zone-header {
+      font-size: 10px;
+      font-weight: 700;
+      color: #38bdf8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      border-bottom: 1px solid #1f2937;
+      padding-bottom: 3px;
+    }
+
+    .zone-body {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .btn-group-wrapper {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      background-color: #1f2937;
+      padding: 3px 6px;
+      border-radius: 4px;
+      border: 1px solid #374151;
+    }
+    .btn-group-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #9ca3af;
+      margin-right: 2px;
+    }
+
+    button, .btn-file {
       border: none;
-      padding: 8px 12px;
-      font-weight: bold;
+      padding: 6px 10px;
+      font-weight: 600;
       cursor: pointer;
       border-radius: 4px;
-      font-size: 12px;
-      color: #000;
+      font-size: 11px;
       display: inline-flex;
       align-items: center;
       gap: 4px;
-    }
-    .header-controls button:hover, .btn-file:hover { background-color: #e6b800; }
-
-    /* ปุ่ม Undo / Redo */
-    .btn-undo-redo { background-color: #17a2b8 !important; color: #fff !important; }
-    .btn-undo-redo:hover { background-color: #138496 !important; }
-
-    /* ปุ่มกรองงานค้าง */
-    .btn-pending-filter { background-color: #dc3545 !important; color: #fff !important; }
-    .btn-pending-filter:hover { background-color: #bd2130 !important; }
-    .btn-pending-filter.active { background-color: #fd7e14 !important; outline: 2px solid #fff; }
-
-    /* ปุ่มแนบไฟล์ Template ต้นแบบ */
-    .btn-template { background-color: #20c997 !important; color: #fff !important; }
-    .btn-template:hover { background-color: #1aa179 !important; }
-
-    /* ปุ่มอัปเดต DEST และดูฐานข้อมูล */
-    .btn-update-dest { background-color: #e83e8c !important; color: #fff !important; }
-    .btn-update-dest:hover { background-color: #d63384 !important; }
-
-    .btn-view-dict { background-color: #fd7e14 !important; color: #fff !important; }
-    .btn-view-dict:hover { background-color: #e06d10 !important; }
-
-    /* ปุ่ม Google Sheets Cloud */
-    .btn-cloud-save { background-color: #28a745 !important; color: #fff !important; }
-    .btn-cloud-save:hover { background-color: #218838 !important; }
-
-    .btn-cloud-load { background-color: #17a2b8 !important; color: #fff !important; }
-    .btn-cloud-load:hover { background-color: #117a8b !important; }
-
-    /* ปุ่มจัดกลุ่ม SUB */
-    .btn-sort-sub { background-color: #6f42c1 !important; color: #fff !important; }
-    .btn-sort-sub:hover { background-color: #5a32a3 !important; }
-
-    /* ปุ่มส่งออก Excel ตามฟอร์ม */
-    .btn-export-excel { background-color: #0d6efd !important; color: #fff !important; }
-    .btn-export-excel:hover { background-color: #0b5ed7 !important; }
-
-    /* กลุ่มปุ่มเลือกเปลี่ยน SUB และ ORIGIN ด้านบน */
-    .btn-group-custom {
-      background-color: #343a40;
+      transition: all 0.15s ease;
       color: #fff;
-      padding: 4px 8px;
-      border: 1px solid #555;
     }
-    .btn-group-custom span { font-size: 11px; margin-right: 4px; color: #ffcc00; }
+    button:active, .btn-file:active { transform: scale(0.96); }
+
+    /* Zone Button Colors */
+    .btn-zone1 { background-color: var(--primary); }
+    .btn-zone1:hover { background-color: var(--primary-hover); }
+
+    .btn-template { background-color: #0d9488; }
+    .btn-template:hover { background-color: #0f766e; }
+
+    .btn-combine { background-color: var(--success); font-weight: 700; }
+    .btn-combine:hover { background-color: var(--success-hover); }
+
     .btn-opt {
-      background-color: #ffc107;
-      color: #000;
-      border: none;
-      padding: 4px 8px;
-      font-size: 11px;
-      font-weight: bold;
+      background-color: #374151;
+      color: #f9fafb;
+      padding: 3px 6px;
+      font-size: 10px;
+      font-weight: 700;
       border-radius: 3px;
-      cursor: pointer;
     }
-    .btn-opt:hover { background-color: #e0a800; }
-    .btn-opt-clear { background-color: #dc3545; color: #fff; }
-    .btn-opt-clear:hover { background-color: #c82333; }
+    .btn-opt:hover { background-color: #4b5563; }
+    .btn-opt-clear { background-color: #7f1d1d; color: #fca5a5; }
+    .btn-opt-clear:hover { background-color: #991b1b; }
 
-    .btn-combine { background-color: #20c997 !important; color: #fff !important; }
-    .btn-combine:hover { background-color: #1baa80 !important; }
+    .btn-sort-sub { background-color: var(--purple); }
+    .btn-sort-sub:hover { background-color: #6d28d9; }
 
-    .btn-delete { background-color: #dc3545 !important; color: #fff !important; }
-    .btn-delete:hover { background-color: #c82333 !important; }
+    .btn-pending-filter { background-color: var(--danger); }
+    .btn-pending-filter:hover { background-color: var(--danger-hover); }
+    .btn-pending-filter.active { background-color: #c2410c !important; outline: 2px solid #fdba74; }
 
-    /* กล่องสรุปจำนวนเที่ยวรถแยกตาม SUB */
+    .btn-update-dest { background-color: #db2777; }
+    .btn-update-dest:hover { background-color: #be185d; }
+
+    .btn-view-dict { background-color: #ea580c; }
+    .btn-view-dict:hover { background-color: #c2410c; }
+
+    .btn-cloud-save { background-color: #0284c7; }
+    .btn-cloud-save:hover { background-color: #0369a1; }
+
+    .btn-cloud-load { background-color: var(--info); }
+    .btn-cloud-load:hover { background-color: #0e7490; }
+
+    .btn-export-excel { background-color: #15803d; }
+    .btn-export-excel:hover { background-color: #166534; }
+
+    .btn-print { background-color: #475569; }
+    .btn-print:hover { background-color: #334155; }
+
+    .btn-undo-redo { background-color: #4b5563; }
+    .btn-undo-redo:hover { background-color: #374151; }
+
+    .btn-copy-table { background-color: #4b5563; }
+    .btn-copy-table:hover { background-color: #374151; }
+
+    .btn-delete { background-color: #991b1b; }
+    .btn-delete:hover { background-color: #7f1d1d; }
+
+    .btn-clear-data { background-color: #4b5563; }
+    .btn-clear-data:hover { background-color: #374151; }
+
+    /* Summary Dashboard Cards */
     .sub-summary-container {
-      background-color: #222;
-      border: 1px solid #444;
-      border-radius: 4px;
-      padding: 6px 12px;
-      margin-bottom: 8px;
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 8px 14px;
+      margin-bottom: 10px;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       flex-wrap: wrap;
     }
     .sub-summary-title {
-      font-size: 12px;
-      font-weight: bold;
-      color: #ffff00;
+      font-size: 11px;
+      font-weight: 700;
+      color: #38bdf8;
       display: flex;
       align-items: center;
       gap: 4px;
     }
     .sub-badge {
-      background-color: #333;
-      border: 1px solid #555;
-      color: #fff;
+      background-color: #111827;
+      border: 1px solid #374151;
+      color: #f9fafb;
       padding: 3px 8px;
       border-radius: 4px;
-      font-size: 12px;
-      font-weight: bold;
+      font-size: 11px;
+      font-weight: 700;
       display: inline-flex;
       align-items: center;
-      gap: 4px;
+      gap: 6px;
     }
     .sub-badge span {
-      background-color: #ffcc00;
-      color: #000;
+      background-color: #374151;
+      color: #38bdf8;
       padding: 1px 6px;
       border-radius: 3px;
-      font-size: 11px;
+      font-size: 10px;
     }
     .sub-badge-total {
-      background-color: #28a745;
-      border-color: #1e7e34;
+      background-color: #064e3b;
+      border-color: #047857;
+      color: #a7f3d0;
     }
     .sub-badge-total span {
-      background-color: #fff;
-      color: #000;
+      background-color: #10b981;
+      color: #fff;
     }
 
+    /* Table Design (Original Sheet Layout) */
     .table-container {
       width: 100%;
       overflow-x: auto;
@@ -162,11 +237,13 @@
       border-collapse: collapse;
       font-size: 11px;
       text-align: center;
+      color: #000;
     }
     .title-row, .header-row {
       background-color: #ffff00;
       font-weight: bold;
       border-bottom: 2px solid #000;
+      color: #000;
     }
     .title-row td { padding: 8px; font-size: 14px; }
     .header-row th { border: 1px solid #000; padding: 6px 2px; white-space: nowrap; }
@@ -178,6 +255,7 @@
       height: 28px; 
       position: relative;
       cursor: cell;
+      color: #000;
     }
     tbody tr:nth-child(even) { background-color: #f9f9f9; }
 
@@ -224,6 +302,7 @@
       padding: 0 4px;
       text-align: inherit;
       user-select: text;
+      color: inherit;
     }
     input.cell-input:focus { outline: none; background-color: #fff; }
 
@@ -244,30 +323,33 @@
 
     .cell-hidden { visibility: hidden !important; }
 
+    /* Modal Styling */
     .modal-overlay {
       display: none;
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.7);
+      background: rgba(0, 0, 0, 0.75);
       z-index: 2000;
       justify-content: center;
       align-items: center;
     }
     .modal-content {
-      background: #fff;
+      background: #1f2937;
+      color: #fff;
       padding: 20px;
       border-radius: 8px;
       width: 550px;
       max-width: 90%;
       max-height: 80vh;
       overflow-y: auto;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      border: 1px solid #374151;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
     }
     .modal-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 2px solid #333;
+      border-bottom: 1px solid #374151;
       padding-bottom: 10px;
       margin-bottom: 15px;
     }
@@ -278,11 +360,11 @@
       margin-bottom: 15px;
     }
     .dict-table th, .dict-table td {
-      border: 1px solid #ccc;
+      border: 1px solid #374151;
       padding: 8px;
       text-align: left;
     }
-    .dict-table th { background-color: #f0f0f0; }
+    .dict-table th { background-color: #111827; color: #38bdf8; }
     .btn-del-dict {
       background-color: #dc3545;
       color: #fff;
@@ -296,7 +378,7 @@
 
     #copyToast {
       visibility: hidden;
-      background-color: #28a745;
+      background-color: #10b981;
       color: #fff;
       text-align: center;
       border-radius: 4px;
@@ -313,7 +395,7 @@
     }
     #copyToast.show { visibility: visible; opacity: 1; }
 
-    /* 🖨️ สไตล์สำหรับการพิมพ์ (Print Style A4 Full Page) */
+    /* 🖨️ Print Style A4 Full Page */
     @media print {
       @page {
         size: A4 landscape;
@@ -326,7 +408,7 @@
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
       }
-      .header-bar, .sub-summary-container, .modal-overlay, #copyToast, .col-cb, .cb-order-badge {
+      .header-bar, .control-panel-container, .sub-summary-container, .modal-overlay, #copyToast, .col-cb, .cb-order-badge {
         display: none !important;
       }
       .table-container {
@@ -337,14 +419,17 @@
       table.control-sheet {
         width: 100% !important;
         font-size: 9.5px !important;
+        color: #000 !important;
       }
       .title-row td {
         padding: 4px !important;
         font-size: 12px !important;
+        background-color: #ffff00 !important;
       }
       .header-row th {
         padding: 3px 1px !important;
         font-size: 9.5px !important;
+        background-color: #ffff00 !important;
       }
       tbody tr td {
         height: 20px !important;
@@ -352,6 +437,7 @@
       input.cell-input {
         font-size: 9px !important;
         padding: 0 2px !important;
+        color: #000 !important;
       }
       input[type="checkbox"] {
         transform: scale(0.85);
@@ -364,78 +450,106 @@
   <div class="header-bar">
     <div class="header-title-container">
       <div class="header-title">⚡ WP Logistics Master Engine (140 Rows)</div>
-      <div class="header-subtitle">Developed & Designed by Worasit Phalasin</div>
     </div>
-    <div class="header-controls">
-      <button class="btn-undo-redo" onclick="undo()" title="Ctrl+Z">↩️ ย้อนกลับ</button>
-      <button class="btn-undo-redo" onclick="redo()" title="Ctrl+Y">↪️ ทำซ้ำ</button>
+  </div>
 
-      <label class="btn-file">
-        📥 ดึงข้อมูลจากไฟล์ลูกค้า
-        <input type="file" id="fileInput" accept=".xlsx, .xls" style="display:none;" onchange="importCustomerFile(this)">
-      </label>
-
-      <label class="btn-file btn-template">
-        📑 โหลดฟอร์มต้นแบบ (.xlsx)
-        <input type="file" id="templateInput" accept=".xlsx, .xls" style="display:none;" onchange="loadTemplateFile(this)">
-      </label>
-      
-      <div class="btn-group-custom">
-        <span>🚚 เปลี่ยน SUB:</span>
-        <button class="btn-opt" onclick="applySubToSelected('PL')">PL</button>
-        <button class="btn-opt" onclick="applySubToSelected('SVL')">SVL</button>
-        <button class="btn-opt" onclick="applySubToSelected('SNS')">SNS</button>
-        <button class="btn-opt" onclick="applySubToSelected('EXT')">EXT</button>
-        <button class="btn-opt" onclick="applySubToSelected('TTK')">TTK</button>
-        <button class="btn-opt btn-opt-clear" onclick="applySubToSelected('')">ล้าง</button>
+  <div class="control-panel-container">
+    <!-- ZONE 1 -->
+    <div class="zone-card">
+      <div class="zone-header">📁 Data Import & Files</div>
+      <div class="zone-body">
+        <label class="btn-file btn-zone1">
+          📥 Customer Import
+          <input type="file" id="fileInput" accept=".xlsx, .xls" style="display:none;" onchange="importCustomerFile(this)">
+        </label>
+        <label class="btn-file btn-template">
+          📑 Load Master Template
+          <input type="file" id="templateInput" accept=".xlsx, .xls" style="display:none;" onchange="loadTemplateFile(this)">
+        </label>
       </div>
+    </div>
 
-      <div class="btn-group-custom">
-        <span>🏢 เปลี่ยน ORIGIN:</span>
-        <button class="btn-opt" onclick="applyOriginToSelected('TTK')">TTK</button>
-        <button class="btn-opt" onclick="applyOriginToSelected('BAC')">BAC</button>
-        <button class="btn-opt" onclick="applyOriginToSelected('SNS 2')">SNS 2</button>
+    <!-- ZONE 2 -->
+    <div class="zone-card" style="flex-grow: 1;">
+      <div class="zone-header">⚡Quick Operations</div>
+      <div class="zone-body">
+        <button class="btn-combine" onclick="confirmCombine()">🔗 Combine Rows</button>
+
+        <div class="btn-group-wrapper">
+          <span class="btn-group-label">🚚 SUB:</span>
+          <button class="btn-opt" onclick="applySubToSelected('PL')">PL</button>
+          <button class="btn-opt" onclick="applySubToSelected('SVL')">SVL</button>
+          <button class="btn-opt" onclick="applySubToSelected('SNS')">SNS</button>
+          <button class="btn-opt" onclick="applySubToSelected('EXT')">EXT</button>
+          <button class="btn-opt" onclick="applySubToSelected('TTK')">TTK</button>
+          <button class="btn-opt btn-opt-clear" onclick="applySubToSelected('')">Clear</button>
+        </div>
+
+        <div class="btn-group-wrapper">
+          <span class="btn-group-label">🏢 ORIGIN:</span>
+          <button class="btn-opt" onclick="applyOriginToSelected('TTK')">TTK</button>
+          <button class="btn-opt" onclick="applyOriginToSelected('BAC')">BAC</button>
+          <button class="btn-opt" onclick="applyOriginToSelected('SNS 2')">SNS 2</button>
+        </div>
+
+        <button class="btn-sort-sub" onclick="groupBySub()">🧩 Group by Sub</button>
+        <button id="pendingFilterBtn" class="btn-pending-filter" onclick="togglePendingFilter()">📌 Pending Tasks Only (0)</button>
       </div>
+    </div>
 
-      <button class="btn-sort-sub" onclick="groupBySub()">🧩 จัดกลุ่มตาม SUB</button>
-      <button class="btn-export-excel" onclick="exportSubExcelFiles()">📤 ส่งออก Excel แยก SUB</button>
+    <!-- ZONE 3 -->
+    <div class="zone-card">
+      <div class="zone-header">📖 Database & Dictionary</div>
+      <div class="zone-body">
+        <button class="btn-update-dest" onclick="updateSelectedDestName()">✏️ Update Dest Name</button>
+        <button class="btn-view-dict" onclick="openDictModal()">📖 Dest Dictionary</button>
+      </div>
+    </div>
 
-      <button class="btn-update-dest" onclick="updateSelectedDestName()">✏️ อัปเดตชื่อ DEST</button>
-      <button class="btn-view-dict" onclick="openDictModal()">📖 ดูฐานข้อมูล DEST</button>
+    <!-- ZONE 4 -->
+    <div class="zone-card">
+      <div class="zone-header">☁️Cloud Sync & Export</div>
+      <div class="zone-body">
+        <button class="btn-cloud-save" onclick="saveToGoogleSheets()">☁️ Save to Cloud</button>
+        <button class="btn-cloud-load" onclick="loadFromGoogleSheets()">🔄 Load Cloud Data</button>
+        <button class="btn-export-excel" onclick="exportSubExcelFiles()">📤 Export Sub Excels</button>
+        <button class="btn-print" onclick="window.print()">🖨️ Print Control Sheet</button>
+      </div>
+    </div>
 
-      <button class="btn-cloud-save" onclick="saveToGoogleSheets()">☁️ บันทึกลง Google Sheets</button>
-      <button class="btn-cloud-load" onclick="loadFromGoogleSheets()">🔄 ดึงข้อมูลจาก Sheets</button>
-
-      <button id="pendingFilterBtn" class="btn-pending-filter" onclick="togglePendingFilter()">📌 แสดงเฉพาะงานค้าง (0)</button>
-
-      <button class="btn-combine" onclick="confirmCombine()">🔗 รวมรายการ</button>
-      <button class="btn-delete" onclick="deleteSelectedRows()">🗑️ ลบรายการ</button>
-      <button onclick="copyAllTable()">📋 คัดลอกตาราง</button>
-      <button onclick="clearData()">ล้างข้อมูล</button>
-      <button onclick="window.print()">🖨️ พิมพ์</button>
+    <!-- ZONE 5 -->
+    <div class="zone-card">
+      <div class="zone-header">🛡️Safety & Utilities</div>
+      <div class="zone-body">
+        <button class="btn-undo-redo" onclick="undo()" title="Ctrl+Z">↩️ Undo</button>
+        <button class="btn-undo-redo" onclick="redo()" title="Ctrl+Y">↪️ Redo</button>
+        <button class="btn-copy-table" onclick="copyAllTable()">📋 Copy Table</button>
+        <button class="btn-delete" onclick="deleteSelectedRows()">🗑️ Delete Selected</button>
+        <button class="btn-clear-data" onclick="clearData()">⚠️ Clear All Data</button>
+      </div>
     </div>
   </div>
 
   <div class="sub-summary-container">
-    <div class="sub-summary-title">📊 สรุปจำนวนเที่ยวรถ (SUB):</div>
-    <div class="sub-badge">PL: <span id="count_PL">0</span> เที่ยว</div>
-    <div class="sub-badge">SVL: <span id="count_SVL">0</span> เที่ยว</div>
-    <div class="sub-badge">SNS: <span id="count_SNS">0</span> เที่ยว</div>
-    <div class="sub-badge">EXT: <span id="count_EXT">0</span> เที่ยว</div>
-    <div class="sub-badge">TTK: <span id="count_TTK">0</span> เที่ยว</div>
-    <div class="sub-badge">ไม่ระบุ SUB: <span id="count_NONE">0</span> เที่ยว</div>
-    <div class="sub-badge sub-badge-total">รวมทั้งหมด: <span id="count_TOTAL">0</span> เที่ยว</div>
+    <div class="sub-summary-title">📊 Subcontractor Trips Summary:</div>
+    <div class="sub-badge">PL: <span id="count_PL">0</span> Trips</div>
+    <div class="sub-badge">SVL: <span id="count_SVL">0</span> Trips</div>
+    <div class="sub-badge">SNS: <span id="count_SNS">0</span> Trips</div>
+    <div class="sub-badge">EXT: <span id="count_EXT">0</span> Trips</div>
+    <div class="sub-badge">TTK: <span id="count_TTK">0</span> Trips</div>
+    <div class="sub-badge">Unassigned: <span id="count_NONE">0</span> Trips</div>
+    <div class="sub-badge sub-badge-total">Total Trips: <span id="count_TOTAL">0</span> Trips</div>
   </div>
 
   <div class="table-container">
     <table class="control-sheet" id="truckTable">
       <thead>
         <tr class="title-row">
-          <td colspan="14" class="divider-left">Truck control sheet (Subcontractor) / ใบควบคุมการขนส่ง (รถร่วม) — WP Engine</td>
-          <td colspan="14">วันที่: <input type="date" id="sheetDate" value="2026-09-22" style="font-weight:bold; padding:2px;" onchange="onDateChanged()"></td>
+          <td colspan="14" class="divider-left">Truck control sheet (Subcontractor) / WP Engine</td>
+          <td colspan="14">Date: <input type="date" id="sheetDate" value="2026-09-22" style="font-weight:bold; padding:2px;" onchange="onDateChanged()"></td>
         </tr>
         <tr class="header-row">
-          <th class="col-cb">เลือก</th>
+          <th class="col-cb">Select</th>
           <th class="col-no">NO.</th>
           <th class="col-sub">SUB</th>
           <th class="col-chk">4W</th>
@@ -450,7 +564,7 @@
           <th class="col-qty">QUANTITY</th>
           <th class="col-remark divider-left">REMARK</th>
 
-          <th class="col-cb">เลือก</th>
+          <th class="col-cb">Select</th>
           <th class="col-no">NO.</th>
           <th class="col-sub">SUB</th>
           <th class="col-chk">4W</th>
@@ -473,25 +587,25 @@
   <div id="dictModal" class="modal-overlay">
     <div class="modal-content">
       <div class="modal-header">
-        <h3 style="margin:0;">📖 ฐานข้อมูลการจับคู่ชื่อ DESTINATION</h3>
-        <button onclick="closeDictModal()" style="border:none; background:none; font-size:18px; cursor:pointer; font-weight:bold;">❌</button>
+        <h3 style="margin:0;">📖 DESTINATION Mapping Dictionary</h3>
+        <button onclick="closeDictModal()" style="border:none; background:none; font-size:18px; cursor:pointer; font-weight:bold; color:#fff;">❌</button>
       </div>
-      <p style="font-size:12px; color:#666; margin-bottom:10px;">รายการคำเดิมที่ระบบจำไว้ และจะถูกเปลี่ยนเป็นคำใหม่ให้อัตโนมัติเมื่อดึงไฟล์ Excel เข้ามา (แชร์ข้อมูลถึงกันทุกเครื่อง):</p>
+      <p style="font-size:12px; color:#9ca3af; margin-bottom:10px;">Saved mapping words for auto-converting DEST names during file import:</p>
       
       <table class="dict-table">
         <thead>
           <tr>
-            <th>คำเดิมในไฟล์ Excel</th>
-            <th>เปลี่ยนเป็นชื่อใหม่</th>
-            <th style="width:50px; text-align:center;">จัดการ</th>
+            <th>Original Word in File</th>
+            <th>Mapped Target Name</th>
+            <th style="width:60px; text-align:center;">Action</th>
           </tr>
         </thead>
         <tbody id="dictTableBody"></tbody>
       </table>
 
       <div style="display:flex; justify-content:space-between;">
-        <button onclick="clearAllDict()" style="background-color:#dc3545; color:#fff; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:12px;">🗑️ ล้างฐานข้อมูลทั้งหมด</button>
-        <button onclick="closeDictModal()" style="background-color:#6c757d; color:#fff; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:12px;">ปิดหน้าต่าง</button>
+        <button onclick="clearAllDict()" style="background-color:#dc3545; color:#fff; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:12px;">🗑️ Clear Entire Dictionary</button>
+        <button onclick="closeDictModal()" style="background-color:#4b5563; color:#fff; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:12px;">Close</button>
       </div>
     </div>
   </div>
@@ -530,7 +644,7 @@
         const db = await initIndexedDB();
         const tx = db.transaction('templates', 'readwrite');
         tx.objectStore('templates').put(arrayBuffer, 'master_template');
-        showToast("📑 บันทึกแบบฟอร์ม Template ไว้ในระบบถาวรแล้ว!");
+        showToast("📑 Master Template saved to system!");
       } catch (err) {
         console.error("Error saving template:", err);
       }
@@ -560,7 +674,7 @@
       reader.onload = function(e) {
         templateArrayBuffer = e.target.result;
         saveTemplateToDB(templateArrayBuffer);
-        showToast("📑 โหลดและบันทึกไฟล์ Template ต้นแบบเรียบร้อยพร้อมใช้งาน!");
+        showToast("📑 Master Template loaded and stored!");
       };
       reader.readAsArrayBuffer(file);
     }
@@ -595,7 +709,7 @@
 
     async function exportSubExcelFiles() {
       if (!templateArrayBuffer) {
-        alert('กรุณากดปุ่ม "📑 โหลดฟอร์มต้นแบบ (.xlsx)" อย่างน้อย 1 ครั้ง เพื่อให้ระบบมีไฟล์แม่แบบสำหรับส่งออกครับ!');
+        alert('Please click "📑 Load Master Template" at least once before exporting files!');
         return;
       }
 
@@ -644,9 +758,9 @@
       }
 
       if (countExported === 0) {
-        alert('ไม่พบรายการที่มีการระบุ SUB (PL, SVL, SNS, EXT, TTK) ในตารางสำหรับส่งออกครับ!');
+        alert('No rows with specified SUB (PL, SVL, SNS, EXT, TTK) found for export!');
       } else {
-        showToast(`📤 ส่งออกไฟล์ Excel สำเร็จทั้งหมด ${countExported} ไฟล์!`);
+        showToast(`📤 Exported ${countExported} Excel files successfully!`);
       }
     }
 
@@ -708,11 +822,11 @@
 
     async function saveToGoogleSheets() {
       if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes('วาง_URL')) {
-        alert('กรุณาตั้งค่า GOOGLE_SCRIPT_URL ในโค้ดก่อนใช้งานครับ!');
+        alert('Please configure GOOGLE_SCRIPT_URL first!');
         return;
       }
 
-      showToast("⏳ กำลังบันทึกลง Google Sheets...");
+      showToast("⏳ Saving data to Google Sheets...");
       const stateObj = JSON.parse(getCurrentState());
       stateObj.action = 'saveData';
 
@@ -723,20 +837,20 @@
           body: JSON.stringify(stateObj)
         });
 
-        showToast("☁️ บันทึกลง Google Sheets เรียบร้อยแล้ว!");
+        showToast("☁️ Saved to Google Sheets successfully!");
       } catch (err) {
-        alert("เกิดข้อผิดพลาดในการบันทึก: " + err);
+        alert("Error saving data: " + err);
       }
     }
 
     async function loadFromGoogleSheets(silent = false) {
       if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes('วาง_URL')) {
-        if (!silent) alert('กรุณาตั้งค่า GOOGLE_SCRIPT_URL ในโค้ดก่อนใช้งานครับ!');
+        if (!silent) alert('Please configure GOOGLE_SCRIPT_URL first!');
         return;
       }
 
       const currentDateVal = document.getElementById('sheetDate').value;
-      if (!silent) showToast(`⏳ กำลังโหลดข้อมูลประจำวันที่ ${currentDateVal}...`);
+      if (!silent) showToast(`⏳ Loading data for ${currentDateVal}...`);
 
       try {
         await fetchCloudDictionary();
@@ -750,12 +864,12 @@
             rows: result.rows
           };
           applyState(JSON.stringify(stateToApply));
-          showToast(`🔄 ดึงข้อมูลวันที่ ${currentDateVal} จาก Google Sheets สำเร็จ!`);
+          showToast(`🔄 Data loaded for ${currentDateVal}!`);
         } else {
-          if (!silent) alert(`ไม่พบข้อมูลที่บันทึกไว้ของวันที่ ${currentDateVal} ใน Google Sheets ครับ`);
+          if (!silent) alert(`No saved data found for date ${currentDateVal}`);
         }
       } catch (err) {
-        if (!silent) alert("เกิดข้อผิดพลาดในการดึงข้อมูล: " + err);
+        if (!silent) alert("Error loading data: " + err);
       }
     }
 
@@ -767,7 +881,7 @@
     function applySubToSelected(subValue) {
       const selectedBoxes = Array.from(document.querySelectorAll('.cmb-select:checked'));
       if (selectedBoxes.length === 0) {
-        alert('กรุณาเลือกติ๊กช่อง Checkbox หน้าแถวรายการที่ต้องการเปลี่ยน SUB ก่อนครับ!');
+        alert('Please select at least one row checkbox to change SUB!');
         return;
       }
 
@@ -782,7 +896,7 @@
       uncheckAllBoxes();
       saveState();
       saveToBrowser(true);
-      showToast(subValue !== '' ? `เปลี่ยน SUB เป็น ${subValue} ทั้งหมด ${selectedBoxes.length} รายการแล้ว!` : `ล้าง SUB ทั้งหมด ${selectedBoxes.length} รายการแล้ว!`);
+      showToast(subValue !== '' ? `Updated SUB to ${subValue} for ${selectedBoxes.length} rows!` : `Cleared SUB for ${selectedBoxes.length} rows!`);
     }
 
     function groupBySub() {
@@ -809,7 +923,7 @@
       }
 
       if (rowsData.length === 0) {
-        alert('ไม่มีข้อมูลในตารางสำหรับจัดกลุ่มครับ!');
+        alert('No data in table to sort!');
         return;
       }
 
@@ -848,20 +962,20 @@
       uncheckAllBoxes();
       saveState();
       saveToBrowser(true);
-      showToast('🧩 จัดกลุ่มตารางตาม SUB เรียบร้อยแล้ว!');
+      showToast('🧩 Table grouped by SUB successfully!');
     }
 
     async function updateSelectedDestName() {
       const selectedBoxes = Array.from(document.querySelectorAll('.cmb-select:checked'));
       if (selectedBoxes.length === 0) {
-        alert('กรุณาเลือกติ๊กช่อง Checkbox หน้าแถวรายการที่ต้องการอัปเดตชื่อ DESTINATION ก่อนครับ!');
+        alert('Please select at least one row checkbox to update DEST name!');
         return;
       }
 
       const firstRowIdx = selectedBoxes[0].getAttribute('data-row');
       const currentDestVal = document.getElementById(`dest_${firstRowIdx}`)?.value || '';
 
-      const newDestName = prompt(`ระบุชื่อ DESTINATION ใหม่สำหรับคำว่า "${currentDestVal}":`, currentDestVal);
+      const newDestName = prompt(`Enter new DESTINATION name for "${currentDestVal}":`, currentDestVal);
       if (!newDestName || newDestName.trim() === '' || newDestName.trim() === currentDestVal) {
         return;
       }
@@ -897,7 +1011,7 @@
       uncheckAllBoxes();
       saveState();
       saveToBrowser(true);
-      showToast(`อัปเดตชื่อเป็น "${cleanedNewName}" ในตารางและซิงค์ขึ้น Cloud สำเร็จ!`);
+      showToast(`Updated name to "${cleanedNewName}" and synced to Cloud!`);
     }
 
     function openDictModal() {
@@ -907,15 +1021,15 @@
 
         const keys = Object.keys(cloudDictionary);
         if (keys.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#999;">ยังไม่มีข้อมูลการจับคู่ชื่อที่บันทึกไว้</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#9ca3af;">No mapping words saved yet</td></tr>';
         } else {
           keys.forEach(key => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
               <td><b>${key}</b></td>
-              <td style="color:#28a745; font-weight:bold;">${cloudDictionary[key]}</td>
+              <td style="color:#10b981; font-weight:bold;">${cloudDictionary[key]}</td>
               <td style="text-align:center;">
-                <button class="btn-del-dict" onclick="deleteDictItem('${key}')">ลบ</button>
+                <button class="btn-del-dict" onclick="deleteDictItem('${key}')">Delete</button>
               </td>
             `;
             tbody.appendChild(tr);
@@ -935,14 +1049,14 @@
       delete dict[key];
       await syncCloudDictionary(dict);
       openDictModal();
-      showToast(`ลบคำว่า "${key}" ออกจากฐานข้อมูลแล้ว`);
+      showToast(`Removed "${key}" from dictionary`);
     }
 
     async function clearAllDict() {
-      if (confirm('คุณต้องการล้างฐานข้อมูลพจนานุกรม DESTINATION ทั้งหมดใช่หรือไม่?')) {
+      if (confirm('Are you sure you want to clear the entire mapping dictionary?')) {
         await syncCloudDictionary({});
         openDictModal();
-        showToast('ล้างฐานข้อมูลพจนานุกรมเรียบร้อยแล้ว');
+        showToast('Mapping dictionary cleared completely');
       }
     }
 
@@ -1019,9 +1133,9 @@
       const btn = document.getElementById('pendingFilterBtn');
       if (btn) {
         if (isPendingOnlyFilter) {
-          btn.innerText = `🔍 แสดงทั้งหมด (${pendingCount} งานค้าง)`;
+          btn.innerText = `🔍 Show All (${pendingCount} Pending)`;
         } else {
-          btn.innerText = `📌 แสดงเฉพาะงานค้าง (${pendingCount})`;
+          btn.innerText = `📌 Pending Tasks Only (${pendingCount})`;
         }
       }
 
@@ -1194,25 +1308,25 @@
 
     function undo() {
       if (undoStack.length <= 1) {
-        showToast("⚠️ ไม่สามารถย้อนกลับได้อีกแล้ว");
+        showToast("⚠️ Cannot undo further");
         return;
       }
       const currentState = undoStack.pop();
       redoStack.push(currentState);
       const prevState = undoStack[undoStack.length - 1];
       applyState(prevState);
-      showToast("↩️ ย้อนกลับเรียบร้อยแล้ว");
+      showToast("↩️ Undo successful");
     }
 
     function redo() {
       if (redoStack.length === 0) {
-        showToast("⚠️ ไม่มีขั้นตอนให้ทำซ้ำ");
+        showToast("⚠️ Nothing to redo");
         return;
       }
       const nextState = redoStack.pop();
       undoStack.push(nextState);
       applyState(nextState);
-      showToast("↪️ ทำซ้ำเรียบร้อยแล้ว");
+      showToast("↪️ Redo successful");
     }
 
     function generateTable() {
@@ -1224,7 +1338,7 @@
         tr.setAttribute('data-tr-idx', i);
 
         tr.innerHTML = `
-          <!-- ฝั่งซ้าย (1-70) -->
+          <!-- Left Side (1-70) -->
           <td class="col-cb"><input type="checkbox" class="cmb-select" data-row="${leftNo}" onchange="handleCheckboxChange(this)"></td>
           <td class="col-no">${leftNo}</td>
           <td class="selectable-td col-sub" data-row="${leftNo}" data-col-idx="0"><input class="cell-input" id="sub_${leftNo}" style="text-align:center; font-weight:bold;"></td>
@@ -1240,7 +1354,7 @@
           <td class="selectable-td col-qty" data-row="${leftNo}" data-col-idx="7"><input class="cell-input" id="qty_${leftNo}"></td>
           <td class="selectable-td col-remark divider-left" data-row="${leftNo}" data-col-idx="8"><input class="cell-input" id="rmk_${leftNo}"></td>
 
-          <!-- ฝั่งขวา (71-140) -->
+          <!-- Right Side (71-140) -->
           <td class="col-cb"><input type="checkbox" class="cmb-select" data-row="${rightNo}" onchange="handleCheckboxChange(this)"></td>
           <td class="col-no">${rightNo}</td>
           <td class="selectable-td col-sub" data-row="${rightNo}" data-col-idx="9"><input class="cell-input" id="sub_${rightNo}" style="text-align:center; font-weight:bold;"></td>
@@ -1272,7 +1386,7 @@
     function applyOriginToSelected(orgValue) {
       const selectedBoxes = Array.from(document.querySelectorAll('.cmb-select:checked'));
       if (selectedBoxes.length === 0) {
-        alert('กรุณาเลือกติ๊กช่อง Checkbox หน้าแถวรายการที่ต้องการเปลี่ยน ORIGIN ก่อนครับ!');
+        alert('Please select at least one row checkbox to change ORIGIN!');
         return;
       }
 
@@ -1287,18 +1401,18 @@
       uncheckAllBoxes();
       saveState();
       saveToBrowser(true);
-      showToast(`เปลี่ยน ORIGIN เป็น ${orgValue} ทั้งหมด ${selectedBoxes.length} รายการแล้ว!`);
+      showToast(`Updated ORIGIN to ${orgValue} for ${selectedBoxes.length} rows!`);
     }
 
     function saveToBrowser(silent = false) {
       const stateStr = getCurrentState();
       localStorage.setItem('ttk_truck_sheet_data', stateStr);
       if (!silent) {
-        showToast("💾 บันทึกงานลงใน Browser เรียบร้อยแล้ว!");
+        showToast("💾 Saved to Browser storage!");
       }
     }
 
-    /* 📌 ระบบลากคลุมอิสระ + ถอนโฟกัสชัวร์แก้ปัญหาติดแค่ K8 */
+    /* 📌 Drag Selection Logic */
     let isMouseDown = false;
     let startTD = null;
     let selectedTDs = [];
@@ -1310,7 +1424,6 @@
         const td = e.target.closest('td.selectable-td');
         if (!td) return;
 
-        // 📌 ถอนโฟกัสจาก input ทุกตัวในระบบ เพื่อไม่ให้เบราว์เซอร์ล็อกจำช่องพิมพ์ K8
         if (document.activeElement) {
           document.activeElement.blur();
         }
@@ -1334,14 +1447,13 @@
         isMouseDown = false;
       });
 
-      // 📌 ดักจับคำสั่ง Ctrl+C ในระดับ window สั่งเขียนตารางสีฟ้าลง Clipboard โดยตรง
       window.addEventListener('copy', function(e) {
         if (selectedTDs.length > 0) {
           e.preventDefault();
           const clipboardText = generateClipboardText();
           if (e.clipboardData) {
             e.clipboardData.setData('text/plain', clipboardText);
-            showToast(`📋 คัดลอกข้อมูล ${selectedTDs.length} ช่องเรียบร้อยแล้ว!`);
+            showToast(`📋 Copied ${selectedTDs.length} cells!`);
           }
         }
       });
@@ -1349,7 +1461,6 @@
       document.addEventListener('keydown', function(e) {
         if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c') {
           if (selectedTDs.length > 0) {
-            // บังคับ Trigger Event copy
             document.execCommand('copy');
           }
         }
@@ -1641,7 +1752,7 @@
         uncheckAllBoxes();
         saveState();
         saveToBrowser(true);
-        showToast(`นำเข้าสำเร็จ! (${index - 1} รายการ) ${extractedDate ? 'วันที่: ' + extractedDate : ''}`);
+        showToast(`Imported ${index - 1} rows! ${extractedDate ? 'Date: ' + extractedDate : ''}`);
       };
 
       reader.readAsArrayBuffer(file);
@@ -1650,11 +1761,11 @@
     function deleteSelectedRows() {
       const selectedBoxes = Array.from(document.querySelectorAll('.cmb-select:checked'));
       if (selectedBoxes.length === 0) {
-        alert('กรุณาเลือกติ๊กช่อง Checkbox หน้าแถวที่ต้องการลบก่อนครับ!');
+        alert('Please select at least one row checkbox to delete!');
         return;
       }
 
-      if (confirm(`คุณต้องการลบรายการที่เลือกทั้งหมด ${selectedBoxes.length} รายการใช่หรือไม่?`)) {
+      if (confirm(`Are you sure you want to delete ${selectedBoxes.length} selected row(s)?`)) {
         selectedBoxes.forEach(box => {
           const rowIdx = box.getAttribute('data-row');
           clearRowData(rowIdx);
@@ -1664,14 +1775,14 @@
         realignTableRows();
         saveState();
         saveToBrowser(true);
-        showToast(`ลบรายการที่เลือกเรียบร้อยแล้ว (${selectedBoxes.length} รายการ)`);
+        showToast(`Deleted ${selectedBoxes.length} row(s)!`);
       }
     }
 
     function confirmCombine() {
       const selectedBoxes = Array.from(document.querySelectorAll('.cmb-select:checked'));
       if (selectedBoxes.length < 2) {
-        alert('กรุณาเลือกติ๊กช่อง Checkbox หน้าแถวที่ต้องการ COMBINE อย่างน้อย 2 รายการขึ้นไปครับ!');
+        alert('Please select at least 2 row checkboxes to COMBINE!');
         return;
       }
 
@@ -1701,7 +1812,6 @@
         const qty = (document.getElementById(`qty_${rowIdx}`)?.value || '').trim();
         const rmk = (document.getElementById(`rmk_${rowIdx}`)?.value || '').trim();
 
-        // กรองเฉพาะช่องที่มีข้อมูล เพื่อป้องกันคำว่า undefined และค่าว่างหลุดออกมา
         if (sec) secList.push(sec);
         if (org) orgList.push(org);
         if (dest) destList.push(dest);
@@ -1712,25 +1822,24 @@
         if (rmk) rmkList.push(rmk);
       });
 
-      // 📌 1. SECTION & ORIGIN: แสดงต่อกันด้วย / ทุกกรณี (เช่น C6/C6, SNS 2/SNS 2)
+      // 📌 1. SECTION & ORIGIN: Always joined with /
       document.getElementById(`sec_${targetRow}`).value = secList.join('/');
       document.getElementById(`org_${targetRow}`).value = orgList.join('/');
 
-      // 📌 2. DESTINATION: แสดงต่อกันด้วย / 
+      // 📌 2. DESTINATION: Joined with /
       document.getElementById(`dest_${targetRow}`).value = isAllSame(destList) ? (destList[0] || '') : destList.join('/');
       
-      // 📌 3. PICK UP & DELIVERY: แสดงเฉพาะค่าเวลาที่มีอยู่ ป้องกัน undefined
+      // 📌 3. PICK UP & DELIVERY: Display valid values
       document.getElementById(`pTime_${targetRow}`).value = isAllSame(pTimeList) ? (pTimeList[0] || '') : pTimeList.join('/');
       document.getElementById(`dTime_${targetRow}`).value = isAllSame(dTimeList) ? (dTimeList[0] || '') : dTimeList.join('/');
       
-      // 📌 4. PARTS NAME: ถ้าเหมือนกันขึ้นครั้งเดียว ถ้าต่างกันแสดงต่อด้วย /
+      // 📌 4. PARTS NAME: Display single if all same
       document.getElementById(`part_${targetRow}`).value = isAllSame(partList) ? (partList[0] || '') : partList.join('/');
       
       // 📌 5. QUANTITY & REMARK
       document.getElementById(`qty_${targetRow}`).value = qtyList.join(' / ');
       document.getElementById(`rmk_${targetRow}`).value = [...new Set(rmkList)].join(' | ');
 
-      // ล้างข้อมูลแถวอื่นที่ถูกนำมารวม
       for (let i = 1; i < rowsToCombine.length; i++) {
         clearRowData(rowsToCombine[i]);
       }
@@ -1740,7 +1849,7 @@
       saveState();
       saveToBrowser(true);
 
-      showToast(`COMBINE รวมข้อมูลเรียบร้อยแล้วที่ลำดับ ${targetRow}`);
+      showToast(`COMBINED data successfully into row ${targetRow}!`);
     }
 
     function isAllSame(arr) {
@@ -1827,7 +1936,7 @@
         }
       }
       navigator.clipboard.writeText(tableText);
-      showToast("คัดลอกข้อมูลทั้งตารางเรียบร้อยแล้ว!");
+      showToast("Entire table copied to clipboard!");
     }
 
     function showToast(message) {
@@ -1838,7 +1947,7 @@
     }
 
     function clearData(confirmNeed = true) {
-      if (!confirmNeed || confirm('คุณต้องการล้างข้อมูลทั้งหมดใช่หรือไม่?')) {
+      if (!confirmNeed || confirm('Are you sure you want to clear all data?')) {
         document.querySelectorAll('.cell-input').forEach(input => input.value = '');
         document.querySelectorAll('input[type="checkbox"]').forEach(chk => chk.checked = false);
         clearCellSelections();
